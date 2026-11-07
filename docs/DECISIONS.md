@@ -1,0 +1,23 @@
+# Decisions and lessons
+
+Newest first. Dance Lab started as a copy of Athletic Lab at v0.6.1 (2026-11-07); the entries below are Dance Lab's own. Athletic Lab's decision log covers the shared plumbing (sync, backup, clips, the player, the parent mode).
+
+## 2026-11-07, v0.1.0, first build (Deren: "gear it towards Vivi... mobility, stretching, strength, flexibility. Bodyweight stuff only. She's only nine and she's not in sports. She's in dance and piano and sewing, and so we're just trying to create flexibility and athleticism and movement.")
+
+- **Fork, do not rebuild.** Athletic Lab's shape already fit (check-in, color, one session a day, player, parent mode, sync, backup). What a nine-year-old dancer needs is a different body of content and gentler rules, not a different app. Same Supabase project, own family code, so no server work.
+- **Body weight only, in the type system.** `Load = 'body'`. No weights, no approvals, no "5 lb" anywhere, and the library test proves every exercise's `loads` is `['body']`. The parent's Exercises tab lost the approval chips and gained "Mark watched" and "Turn off" on every move.
+- **Flexibility rules baked in, not advised.** Every stretch holds 15 to 30 seconds (45 for child's pose), warm-up first in every template, no bouncing, "never let anyone push you deeper" on every stretch's skip line (tested), no deep backbends, bridges-as-backbends, wheels or neck stretches in the library at all. Cobra is a small lift with hips down. Half split is explicitly not a split. The dance teacher takes her further in class; the app keeps the daily habit.
+- **Three green days that take turns: Stretch and reach, Strong and steady, Happy feet.** Instead of Strength A / Shortstop / Strength B. Only Strong and steady counts as demanding (48 hours apart, weekly cap of two or three); stretch and feet days are gentle enough for any day. A strength turn that is not allowed falls back to whichever of stretch and feet was longer ago.
+- **A dance class is a yellow day.** A normal class (45 to 90 minutes, medium) scores 4, which is yellow: the Easy workout, eight minutes, gentle stretches while she is still warm. Wednesday is dance, so Wednesday is the Easy workout. A recital, show or competition is orange (five-minute stretch) and keeps the legs easy the next day. "Lots of jumping" (trampoline, tumbling) blocks jumps today and tomorrow.
+- **Something every day, 12 minutes or less.** Same rule as Eli's app, and sessions are shorter because nine-year-old attention is the real cap. Daily 5, Easy workout, Five-minute stretch and the Easy day (two minutes of balloon breathing on a red day) are all there.
+- **No body talk, tested.** Nothing about weight, shape, calories, dieting or what a dancer should look like, in the messages, the habits page, the FAQ or the library, and the tests look for the words. The habit list says "Dancers eat; that is where the energy for class comes from."
+- **Words for nine.** "Balloon breathing", "Stork balance", "Happy feet", "a good pull, never a pinch", "tell a grown-up" instead of "tell a parent", "she" throughout. Exercise names say what you do, not what it is called: "Squats (sit and stand)", "Push-ups on a bench or couch", "Point and flex", "Towel scrunches".
+- **Dance vocabulary where it helps.** Relevé, tendu, arabesque, butterfly, straddle, pike: words she hears in class, each with the plain explanation next to it.
+- **No outside videos.** Athletic Lab's YouTube demos were for baseball moves a kid has never seen. Stretches and simple strength moves are clear from the moving drawing, and the family-clip slot stays for a ten-second clip of Vivi doing it right. Dropping the videos also dropped the link checker and the keepalive workflow (Athletic Lab's keeps the shared project awake).
+- **Own look.** Plum and rose (Playful), Calm, and Stage (dark with gold). Icon is the ballet shoes emoji on plum, as asked, rendered from Noto Color Emoji the same way Dad Lab's arm was, with the `-v4` cache-busting lesson not needed on a fresh install.
+- **Setup speaks to the parent, then to her.** Activities list is dance, gymnastics, swimming, piano, sewing, other (piano and sewing are not activity logs; they are there so the profile reads true to her). Birth year accepts down to four years ago.
+
+## Lessons for the first real week
+- Watch which day she lands on after Wednesday dance; if the Easy workout feels too long at eight minutes for a tired kid, the fix is the template, not the rule.
+- If she never picks Happy feet on her own, move it earlier in the rotation or fold relevés into the Daily 5.
+- The parent "Mark watched" flag has no effect on the shipped library (no move needs a watch first). It is there for the day a harder move does.
