@@ -183,7 +183,7 @@ export function assessReadiness(input: ReadinessInput): Readiness {
     }
   }
 
-  const headline = color === 'green' ? 'Fresh and ready' : color === 'yellow' ? 'Today: a short gentle workout' : 'Big day already: just the five-minute stretch';
+  const headline = color === 'green' ? 'Fresh and ready' : color === 'yellow' ? 'A short gentle workout today' : 'Big day already: just the five-minute stretch';
   return { color, headline, reasons, blocked: [...blocked], blockedWhy, offer, foundations, loadToday, loadYesterday, alerts };
 }
 

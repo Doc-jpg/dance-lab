@@ -60,7 +60,7 @@ const shot = (page, name) => page.screenshot({ path: path.join(shotsDir, `${name
   await page.waitForSelector('text=You answered today');
   await settle();
   let t = await body();
-  expect('yellow day after dance class', /Today: a short gentle workout/.test(t), true);
+  expect('yellow day after dance class', /A short gentle workout today/.test(t), true);
   expect('the reason names the class', /You had dance today/.test(t), true);
   expect('daily message shown', /Recovery|Hydration|Food|Sleep|Consistency|Confidence|Mobility|Challenge/.test(t), true);
   await shot(page, '02_today_checked_in');
