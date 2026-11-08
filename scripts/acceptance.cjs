@@ -60,7 +60,7 @@ const shot = (page, name) => page.screenshot({ path: path.join(shotsDir, `${name
   await page.waitForSelector('text=You answered today');
   await settle();
   let t = await body();
-  expect('yellow day after dance class', /Easy workout today/.test(t), true);
+  expect('yellow day after dance class', /Today: a short gentle workout/.test(t), true);
   expect('the reason names the class', /You had dance today/.test(t), true);
   expect('daily message shown', /Recovery|Hydration|Food|Sleep|Consistency|Confidence|Mobility|Challenge/.test(t), true);
   await shot(page, '02_today_checked_in');
@@ -71,7 +71,7 @@ const shot = (page, name) => page.screenshot({ path: path.join(shotsDir, `${name
   await page.waitForURL(/\/workout\//);
   await settle();
   t = await body();
-  expect('light day session opened', /Easy workout · 1 of/.test(t), true);
+  expect('light day session opened', /Short gentle workout · 1 of/.test(t), true);
   await shot(page, '03_player');
   const total = await page.locator('.progress-dots i').count();
   for (let i = 0; i < total; i++) {
@@ -98,14 +98,14 @@ const shot = (page, name) => page.screenshot({ path: path.join(shotsDir, `${name
   await page.waitForSelector('text=How was it?');
   await page.click('role=button[name="Easy"]');
   await page.click('role=button[name="Yes"]');
-  await page.fill('input[placeholder="Pike stretch reached further today."]', 'Felt good, easy day.');
+  await page.fill('input[placeholder="Pike stretch reached further today."]', 'Felt good, gentle day.');
   await page.click('role=button[name="Save my workout"]');
   await page.waitForURL(/\/sessions\//);
   await settle();
   t = await body();
   expect('session finished', /Finished/.test(t), true);
   expect('badges earned on the first workout', /Badge.*earned/.test(t), true);
-  expect('note saved on the session', /Felt good, easy day/.test(t), true);
+  expect('note saved on the session', /Felt good, gentle day/.test(t), true);
   await shot(page, '04_session_summary');
 
   // --- Acceptance 1 (offline) and 2 (reopen, see yesterday / today) ---
@@ -117,7 +117,7 @@ const shot = (page, name) => page.screenshot({ path: path.join(shotsDir, `${name
   await page.reload();
   await page.waitForSelector('text=Hey Vivi', { timeout: 15000 });
   t = await body();
-  expect('offline: app opens and shows the finished session', /Easy workout done/.test(t), true);
+  expect('offline: app opens and shows the finished session', /Short gentle workout done/.test(t), true);
   await page.click('a[href="#/journal"]');
   await page.waitForSelector('text=Journal');
   await page.fill('textarea', 'My legs were really tired after dance.');
@@ -137,7 +137,7 @@ const shot = (page, name) => page.screenshot({ path: path.join(shotsDir, `${name
   await page.goto(URL + '#/workouts');
   await page.waitForSelector('text=Every exercise');
   t = await body();
-  expect('the seven days are listed', /Stretch and reach/.test(t) && /Strong and steady/.test(t) && /Happy feet/.test(t) && /Daily 5/.test(t) && /Five-minute stretch/.test(t) && /Easy day/.test(t), true);
+  expect('the seven days are listed', /Stretch and reach/.test(t) && /Strong and steady/.test(t) && /Happy feet/.test(t) && /Five-minute mini workout/.test(t) && /Five-minute stretch/.test(t) && /Just breathing/.test(t), true);
   await page.click('text=Happy feet');
   await page.waitForSelector('text=The app picked something else today');
   await page.click('role=button[name="Do it anyway"]');
@@ -176,16 +176,16 @@ const shot = (page, name) => page.screenshot({ path: path.join(shotsDir, `${name
   await page.click('role=button[name="Save my answers"]');
   await settle();
   t = await body();
-  expect('red day: the headline is the easy day, not nothing', /Easy day: breathe, and tell a grown-up/.test(t), true);
+  expect('red day: the headline says just breathing, not nothing', /No workout today: just breathing, and tell a grown-up/.test(t), true);
   expect('red day: tell a grown-up', /grown-up/.test(t), true);
   await shot(page, '07_red_day');
   await page.click('a[href="#/workouts"]');
   await page.waitForSelector('text=Every exercise');
-  await page.click('text=Easy day');
+  await page.click('text=Just breathing');
   await page.waitForURL(/\/workout\//);
   await settle();
   t = await body();
-  expect('easy day is breathing plus an optional walk', /Easy day · 1 of 2/.test(t) && /Balloon breathing/.test(t), true);
+  expect('gentle day is breathing plus an optional walk', /Just breathing · 1 of 2/.test(t) && /Balloon breathing/.test(t), true);
   await page.click('role=button[name="Stop"]');
   await page.click('role=button[name="Out of time"]');
   await page.waitForURL(/\/sessions\//);
@@ -270,7 +270,7 @@ const shot = (page, name) => page.screenshot({ path: path.join(shotsDir, `${name
   await page.click('role=button[name="Something hurts"]'); // toggles it off
   await page.click('role=button[name="Save my answers"]');
   await settle();
-  expect('pain cleared: the finished session is back on Today', /Easy workout done/.test(await body()), true);
+  expect('pain cleared: the finished session is back on Today', /Short gentle workout done/.test(await body()), true);
   await page.goto(URL + '#/help');
   await page.waitForSelector('input[placeholder="Search the questions"]');
   await page.fill('input[placeholder="Search the questions"]', 'backbend');
@@ -310,7 +310,7 @@ const shot = (page, name) => page.screenshot({ path: path.join(shotsDir, `${name
     await p2.waitForURL(/\/parent/);
     await p2.waitForTimeout(800);
     t2 = await p2.locator('body').innerText();
-    expect('dad sees the light day session synced from vivi', /Easy workout/.test(t2), true);
+    expect('dad sees the light day session synced from vivi', /Short gentle workout/.test(t2), true);
     // Dad marks a move watched on his phone; Vivi's device picks it up on its next sync.
     await p2.click('role=button[name="Exercises"]');
     const card2 = p2.locator('.item', { hasText: 'Split squat (one foot in front' });

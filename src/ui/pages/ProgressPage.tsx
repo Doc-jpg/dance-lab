@@ -58,7 +58,7 @@ export function ProgressPage() {
       <div className="small muted">You only ever get compared with the old you, never with anyone else. {phase ? `Week ${phase.week}: ${phase.label.toLowerCase()}.` : ''}</div>
       <div className="kpi">
         <div className="k"><div className="v">{workouts.length}</div><div className="l">Workouts</div></div>
-        <div className="k"><div className="v">{done.filter((s) => s.kind === 'foundations').length}</div><div className="l">Daily 5s</div></div>
+        <div className="k"><div className="v">{done.filter((s) => s.kind === 'foundations').length}</div><div className="l">Mini workouts</div></div>
         <div className="k"><div className="v">{bestBalance ? `${bestBalance}s` : '–'}</div><div className="l">Longest stork balance</div></div>
         <div className="k"><div className="v">{bestPlank ? `${bestPlank}s` : '–'}</div><div className="l">Longest plank</div></div>
         <div className="k"><div className="v">{recoveryDays}</div><div className="l">Rest days you chose</div></div>
@@ -68,7 +68,7 @@ export function ProgressPage() {
       <div className="card">
         <h3>Workouts each week (the last 8 weeks)</h3>
         <Bars values={perWeek} labels={weeks.map((w) => fmtDate(w).replace(/^\w+,? /, ''))} max={4} />
-        <div className="small muted">Daily 5s each week: {foundationsPerWeek.join(' · ')}</div>
+        <div className="small muted">Mini workouts each week: {foundationsPerWeek.join(' · ')}</div>
       </div>
 
       {tracked.length > 0 && (
@@ -80,7 +80,7 @@ export function ProgressPage() {
       )}
 
       <div className="card">
-        <div className="row between"><h3>{first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</h3><span className="tiny muted">● workout · ● dance or play · ● note · ● Daily 5ations</span></div>
+        <div className="row between"><h3>{first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</h3><span className="tiny muted">● workout · ● dance or play · ● note · ● Five-minute mini workoutations</span></div>
         <div className="cal mt">
           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((h, i) => <div key={i} className="h">{h}</div>)}
           {cells.map((d, i) => d ? (() => { const m = marks(d); const has = m.w || m.f || m.s || m.j; return <button key={i} className={`d ${has ? 'has' : ''} ${d === day ? 'today' : ''}`} onClick={() => setPick(d)}><span>{Number(d.slice(8))}</span><span className="marks">{m.w && <i className="w" />}{m.s && <i className="s" />}{m.j && <i className="j" />}{m.f && <i className="f" />}</span></button>; })() : <div key={i} />)}

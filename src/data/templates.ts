@@ -1,8 +1,8 @@
 /**
  * The days. Short, because she is nine and the point is every day, not a long day.
  *   Stretch and reach (flexibility, 12 min)   Strong and steady (bodyweight strength + core, 12 min)
- *   Happy feet (feet, ankles, balance, 10 min) Daily 5 (five easy minutes, any day)
- *   Easy workout (after a dance day, 8 min)    Five-minute stretch (after a big day)   Easy day (red day: breathing)
+ *   Happy feet (feet, ankles, balance, 10 min) Five-minute mini workout (five easy minutes, any day)
+ *   Short gentle workout (after a dance day, 8 min)    Five-minute stretch (after a big day)   Just breathing (red day: breathing)
  */
 import type { WorkoutTemplate } from '../engine/types';
 
@@ -76,7 +76,7 @@ export const LIBRARY_TEMPLATES: WorkoutTemplate[] = [
   }),
   t({
     id: 'foundations',
-    name: 'Daily 5',
+    name: 'Five-minute mini workout',
     kind: 'foundations',
     minutes: 5,
     summary: 'Five easy minutes any day: balloon breathing, cat and cow, starfish, ankle rocks, butterfly, stork. On top of whatever else.',
@@ -91,7 +91,7 @@ export const LIBRARY_TEMPLATES: WorkoutTemplate[] = [
   }),
   t({
     id: 'light',
-    name: 'Easy workout',
+    name: 'Short gentle workout',
     kind: 'light',
     minutes: 8,
     summary: 'For a dance-class day: a short warm-up, the gentle stretches, a little balance, breathing. About 8 minutes.',
@@ -123,7 +123,7 @@ export const LIBRARY_TEMPLATES: WorkoutTemplate[] = [
   }),
   t({
     id: 'easy',
-    name: 'Easy day',
+    name: 'Just breathing',
     kind: 'recovery',
     minutes: 3,
     summary: 'For a day when something hurts or you feel sick: two minutes of balloon breathing and, if it feels fine, a slow walk around the house. That counts as your day. Tell a grown-up how you feel.',

@@ -133,11 +133,11 @@ export function TodayPage() {
           <div className="row between"><div><strong>{mainDone.templateName} done</strong><div className="small muted">Nice work. See the summary or add a note.</div></div><Link className="btn sm" to={`/sessions/${mainDone.id}`}>Summary</Link></div>
         ) : readiness?.color === 'red' && checkIn ? (
           <div className="col">
-            <div><strong>Today: Easy day</strong><div className="small">Two minutes of slow breathing. That is your whole day, and it still counts. Tell a grown-up how you feel. Rest, water, food. Tomorrow you answer the questions again.</div></div>
+            <div><strong>Today: Just breathing</strong><div className="small">Two minutes of slow breathing. That is your whole day, and it still counts. Tell a grown-up how you feel. Rest, water, food. Tomorrow you answer the questions again.</div></div>
             {openSession && openSession.status === 'in_progress' ? (
-              <button className="btn primary xl block" onClick={() => nav(`/workout/${openSession.id}`)}>Continue Easy day</button>
+              <button className="btn primary xl block" onClick={() => nav(`/workout/${openSession.id}`)}>Continue Just breathing</button>
             ) : (
-              <button className="btn primary xl block" onClick={() => start('easy')}>Start the easy day</button>
+              <button className="btn primary xl block" onClick={() => start('easy')}>Start: Just breathing</button>
             )}
             <Link className="btn block" to="/journal">Write a note about it</Link>
           </div>
@@ -157,11 +157,11 @@ export function TodayPage() {
         ) : null}
         {readiness && readiness.foundations !== 'no' && !foundationsDone && (
           <div className="row between mt" style={{ borderTop: '1px solid var(--line)', paddingTop: 10 }}>
-            <div className="grow"><strong>Daily 5</strong><div className="small muted">Five easy minutes you can add on any day{readiness.foundations === 'optional' ? ', but only if it feels good today' : ''}.</div></div>
+            <div className="grow"><strong>Five-minute mini workout</strong><div className="small muted">Five easy minutes you can add on any day{readiness.foundations === 'optional' ? ', but only if it feels good today' : ''}.</div></div>
             <button className="btn sm" onClick={() => start('foundations')}>Do it</button>
           </div>
         )}
-        {foundationsDone && <div className="small muted mt">Daily 5 done today.</div>}
+        {foundationsDone && <div className="small muted mt">Mini workout done today.</div>}
       </div>
 
       {/* 5. Message */}

@@ -19,9 +19,9 @@ From then on Vivi opens the app, checks in, and does the day. The only parent th
 
 ## What a day looks like for her
 - Open the app, tap **Check in**: tap Dance class if she had it, say how she feels, Save.
-- The app says which day it is and why, and shows one big button. Green: Stretch and reach, Strong and steady or Happy feet, whichever is next. Dance day (Wednesday): the Easy workout, about eight minutes. A recital or a very big day: the five-minute stretch. Sick or hurt: two minutes of balloon breathing, and tell you.
+- The app says which day it is and why, and shows one big button. Green: Stretch and reach, Strong and steady or Happy feet, whichever is next. Dance day (Wednesday): the Short gentle workout, about eight minutes. A recital or a very big day: the five-minute stretch. Sick or hurt: two minutes of balloon breathing, and tell you.
 - In the session, the picture shows the move and the big button says what to tap: start the timer, or did it. The app says Done and moves on. Skip is small and quiet.
-- The Daily 5 is five easy minutes she can add any day on top (butterfly, stork, cat and cow, ankles, breathing).
+- The Five-minute mini workout is five easy minutes she can add any day on top (butterfly, stork, cat and cow, ankles, breathing).
 
 ## How the sync works
 - Each device sends what changed and fetches what the other sent whenever the app is opened with a signal, two seconds after any change, when it comes back online, and every two minutes while open. iPad and iPhone web apps cannot run in the background, so her evening session reaches your phone the next time you open the app (it syncs on open).

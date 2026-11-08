@@ -6,7 +6,7 @@
  * The colors are guidance for a healthy kid, never medical clearance.
  *
  * Hard rules never relax:
- *   RED    pain, illness, dizziness: no training, tell a grown-up. The Easy day (two minutes of
+ *   RED    pain, illness, dizziness: no training, tell a grown-up. The Just breathing (two minutes of
  *          breathing) is still offered, because there is always something and it keeps the habit.
  *   ORANGE a recital, competition or performance day, or a lot of activity already: the five-minute
  *          stretch is the whole session.
@@ -41,9 +41,9 @@ export interface Readiness {
   /** Load tags to avoid in any session offered today. */
   blocked: LoadTag[];
   blockedWhy: string[];
-  /** The session the app offers (templateId). Never none: a red day still gets the Easy day. Reduced means one set per exercise. */
+  /** The session the app offers (templateId). Never none: a red day still gets Just breathing. Reduced means one set per exercise. */
   offer: { templateId: string; name: string; kind: SessionKind; reduced: boolean };
-  /** The Daily 5: fine today, fine but optional, or not today. */
+  /** The Five-minute mini workout: fine today, fine but optional, or not today. */
   foundations: 'yes' | 'optional' | 'no';
   loadToday: number;
   loadYesterday: number;
@@ -92,7 +92,7 @@ export function assessReadiness(input: ReadinessInput): Readiness {
     if (l.performance && !blocked.has('legs')) {
       blocked.add('legs');
       blocked.add('jump');
-      blockedWhy.push('Recital or show yesterday, so your legs get another easy day.');
+      blockedWhy.push('Recital or show yesterday, so your legs get another gentle day.');
     } else if (l.heavyJumping && !blocked.has('jump')) {
       blocked.add('jump');
       blockedWhy.push('Lots of jumping yesterday, so no jumping today.');
@@ -111,11 +111,11 @@ export function assessReadiness(input: ReadinessInput): Readiness {
     if (checkIn.dizzy) { reasons.push('You feel dizzy. Sit down, drink some water, and tell a grown-up right now.'); alerts.push('Reported dizziness at check-in.'); }
     return {
       color: 'red',
-      headline: 'Easy day: breathe, and tell a grown-up',
+      headline: 'No workout today: just breathing, and tell a grown-up',
       reasons: [...reasons, 'Tell a parent or another grown-up how you feel. If it is more than tired muscles, a grown-up decides about the doctor, not the app.', 'Two minutes of slow breathing still counts as your day. Nothing else today.'],
       blocked: [...blocked],
       blockedWhy,
-      offer: { templateId: 'easy', name: 'Easy day', kind: 'recovery', reduced: true },
+      offer: { templateId: 'easy', name: 'Just breathing', kind: 'recovery', reduced: true },
       foundations: 'no',
       loadToday,
       loadYesterday,
@@ -164,7 +164,7 @@ export function assessReadiness(input: ReadinessInput): Readiness {
     offer = { templateId: 'recovery', name: 'Five-minute stretch', kind: 'recovery', reduced: false };
     foundations = 'optional';
   } else if (color === 'yellow') {
-    offer = { templateId: 'light', name: 'Easy workout', kind: 'light', reduced: true };
+    offer = { templateId: 'light', name: 'Short gentle workout', kind: 'light', reduced: true };
   } else {
     const planned = input.planned ?? { kind: 'flex', templateId: 'flex', name: 'Stretch and reach' };
     const fallback = input.fallback ?? { kind: 'flex', templateId: 'flex', name: 'Stretch and reach' };
@@ -183,7 +183,7 @@ export function assessReadiness(input: ReadinessInput): Readiness {
     }
   }
 
-  const headline = color === 'green' ? 'Fresh and ready' : color === 'yellow' ? 'Easy workout today' : 'Big day already: just the five-minute stretch';
+  const headline = color === 'green' ? 'Fresh and ready' : color === 'yellow' ? 'Today: a short gentle workout' : 'Big day already: just the five-minute stretch';
   return { color, headline, reasons, blocked: [...blocked], blockedWhy, offer, foundations, loadToday, loadYesterday, alerts };
 }
 
@@ -191,7 +191,7 @@ function sumLoad(logs: SportsLog[], from: Day, to: Day): number {
   return logs.filter((l) => l.day >= from && l.day <= to).reduce((s, l) => s + logLoad(l), 0);
 }
 
-/** Days in a row with something done (any session, the Daily 5 and the Easy day included) or an activity logged. */
+/** Days in a row with something done (any session, the Five-minute mini workout and Just breathing included) or an activity logged. */
 export function chain(sessions: Session[], logs: SportsLog[], day: Day): { length: number; aliveToday: boolean } {
   const days = new Set([...sessions.filter((s) => s.status === 'done').map((s) => s.day), ...logs.map((l) => l.day)]);
   const aliveToday = days.has(day);

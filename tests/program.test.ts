@@ -41,7 +41,7 @@ describe('the rotation: stretch, strength, feet', () => {
     expect(nextInRotation([doneSession(addDays(DAY, -1), 'strength', [])], LIBRARY_TEMPLATES).planned.id).toBe('feet');
     expect(nextInRotation([doneSession(addDays(DAY, -1), 'feet', [])], LIBRARY_TEMPLATES).planned.id).toBe('flex');
   });
-  it('light, recovery and Daily 5 days do not move the rotation', () => {
+  it('light, recovery and Five-minute mini workout days do not move the rotation', () => {
     const s = [doneSession(addDays(DAY, -1), 'light', []), doneSession(addDays(DAY, -2), 'foundations', []), doneSession(addDays(DAY, -3), 'flex', [])];
     expect(nextInRotation(s, LIBRARY_TEMPLATES).planned.id).toBe('strength');
   });
@@ -141,7 +141,7 @@ describe('session building from a template', () => {
     expect(changes.join(' ')).toMatch(/turned it off/);
   });
 
-  it('the Easy day is two minutes of breathing and an optional walk', () => {
+  it('Just breathing is two minutes of breathing and an optional walk', () => {
     const r = assessReadiness({ day: DAY, checkIn: { ...fine, pain: true }, logs: [], sessions: [], settings });
     const { session } = buildSession(TEMPLATE_BY_ID['easy'], r, { ...base, statuses: new Map() });
     expect(session.items[0].exerciseId).toBe('br-breathe');

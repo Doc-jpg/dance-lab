@@ -29,8 +29,8 @@ export async function loadDemo(database: DanceLabDB): Promise<void> {
   const checkIns: CheckIn[] = [];
   const journal: JournalEntry[] = [];
   const habits: HabitLog[] = [];
-  // 21 days back to yesterday. Pattern: Mon stretch, Tue sewing (no log) + strength, Wed dance class (easy workout),
-  // Thu feet, Fri stretch, Sat playing outside, Sun rest; the Daily 5 most days.
+  // 21 days back to yesterday. Pattern: Mon stretch, Tue sewing (no log) + strength, Wed dance class (short gentle workout),
+  // Thu feet, Fri stretch, Sat playing outside, Sun rest; the Five-minute mini workout most days.
   for (let i = 21; i >= 1; i--) {
     const day = addDays(today, -i);
     const dow = new Date(day + 'T12:00:00').getDay();
@@ -44,10 +44,10 @@ export async function loadDemo(database: DanceLabDB): Promise<void> {
     checkIns.push({ id: id('chk'), day, ts: new Date(day + 'T16:00:00').toISOString(), energy, sleep: dow === 0 ? 2 : 4, soreness: dow === 0 ? 'some' : 'none', pain: false, sick: false, dizzy: false, color, by: 'athlete' });
     if (dow === 1 || dow === 5) sessions.push({ id: id('s'), day, templateId: 'flex', templateName: 'Stretch and reach', kind: 'flex', status: 'done', readiness: 'green', why: ['Sample workout'], items: itemsFor('flex', diff, ts), startedAt: ts, finishedAt: ts, overallDifficulty: diff, feltGood: true, by: 'athlete', createdAt: ts, updatedAt: ts });
     if (dow === 2) sessions.push({ id: id('s'), day, templateId: 'strength', templateName: 'Strong and steady', kind: 'strength', status: 'done', readiness: 'green', why: ['Sample workout'], items: itemsFor('strength', diff, ts), startedAt: ts, finishedAt: ts, overallDifficulty: diff, feltGood: true, by: 'athlete', createdAt: ts, updatedAt: ts });
-    if (dow === 3) sessions.push({ id: id('s'), day, templateId: 'light', templateName: 'Easy workout', kind: 'light', status: 'done', readiness: 'yellow', why: ['Dance class today, so a gentle workout'], items: itemsFor('light', 1, ts), startedAt: ts, finishedAt: ts, overallDifficulty: 1, feltGood: true, by: 'athlete', createdAt: ts, updatedAt: ts });
+    if (dow === 3) sessions.push({ id: id('s'), day, templateId: 'light', templateName: 'Short gentle workout', kind: 'light', status: 'done', readiness: 'yellow', why: ['Dance class today, so a gentle workout'], items: itemsFor('light', 1, ts), startedAt: ts, finishedAt: ts, overallDifficulty: 1, feltGood: true, by: 'athlete', createdAt: ts, updatedAt: ts });
     if (dow === 4) sessions.push({ id: id('s'), day, templateId: 'feet', templateName: 'Happy feet', kind: 'feet', status: 'done', readiness: 'green', why: ['Sample workout'], items: itemsFor('feet', 2, ts), startedAt: ts, finishedAt: ts, overallDifficulty: 2, feltGood: true, by: 'athlete', createdAt: ts, updatedAt: ts });
     if (dow === 6) sessions.push({ id: id('s'), day, templateId: 'recovery', templateName: 'Five-minute stretch', kind: 'recovery', status: 'done', readiness: 'orange', why: ['Lots of jumping today'], items: itemsFor('recovery', 1, ts), startedAt: ts, finishedAt: ts, overallDifficulty: 1, feltGood: true, by: 'athlete', createdAt: ts, updatedAt: ts });
-    if (dow !== 6 && dow !== 0 && i % 3 !== 0) sessions.push({ id: id('f'), day, templateId: 'foundations', templateName: 'Daily 5', kind: 'foundations', status: 'done', readiness: color as any, why: [], items: itemsFor('foundations', 1, ts), startedAt: ts, finishedAt: ts, by: 'athlete', createdAt: ts, updatedAt: ts });
+    if (dow !== 6 && dow !== 0 && i % 3 !== 0) sessions.push({ id: id('f'), day, templateId: 'foundations', templateName: 'Five-minute mini workout', kind: 'foundations', status: 'done', readiness: color as any, why: [], items: itemsFor('foundations', 1, ts), startedAt: ts, finishedAt: ts, by: 'athlete', createdAt: ts, updatedAt: ts });
     if (dow === 1 || dow === 6) journal.push({ id: id('j'), day, ts, updatedAt: ts, text: dow === 6 ? 'Legs were really tired after the trampoline.' : 'Pike stretch reached further today.', isPrivate: false, by: 'athlete' });
     if (dow === 3) journal.push({ id: id('jp'), day, ts, updatedAt: ts, text: 'Private note: felt nervous before class but it went fine.', isPrivate: true, by: 'athlete' });
     for (const h of ['water', 'meal', 'sleep'] as const) if ((i + h.length) % 4 !== 0) habits.push({ id: id('h-' + h), day, habit: h, done: true, ts });

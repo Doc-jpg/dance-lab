@@ -93,10 +93,10 @@ export function WorkoutsPage() {
         <div className="list">{history.map((s) => <Link key={s.id} className="item tappable" to={`/sessions/${s.id}`}><div className="grow"><div className="title">{s.templateName}</div><div className="sub">{fmtDate(s.day)} · {s.status === 'done' ? `${s.items.filter((i) => i.sets.some((x) => x.done)).length} exercises` : s.status}</div></div><span className="chev">›</span></Link>)}</div>
       )}
 
-      {confirm === 'red' && <Sheet title="Not today" onClose={() => setConfirm(null)}><p>You said something hurts, you feel sick, or you are dizzy. So no workout today. The Easy day (two minutes of breathing) is the one thing to do, and it counts. Tell a grown-up how you feel. Tomorrow you can answer the questions again.</p></Sheet>}
+      {confirm === 'red' && <Sheet title="Not today" onClose={() => setConfirm(null)}><p>You said something hurts, you feel sick, or you are dizzy. So no workout today. Just breathing (two minutes of slow breathing) is the one thing to do, and it counts. Tell a grown-up how you feel. Tomorrow you can answer the questions again.</p></Sheet>}
       {confirm && confirm !== 'red' && (
         <Sheet title="The app picked something else today" onClose={() => setConfirm(null)} footer={<><button className="btn" onClick={() => setConfirm(null)}>Do what the app picked</button><button className="btn primary" onClick={() => { const id = confirm; setConfirm(null); startTemplate(id); }}>Do it anyway</button></>}>
-          <p>Today the app picked <strong>{readiness?.offer?.name ?? 'the easy day'}</strong>. Here is why:</p>
+          <p>Today the app picked <strong>{readiness?.offer?.name ?? 'Just breathing'}</strong>. Here is why:</p>
           <ul className="why">{readiness?.reasons.map((r, i) => <li key={i}>{r}</li>)}{readiness?.blockedWhy.map((r, i) => <li key={'b' + i}>{r}</li>)}</ul>
           <p className="small muted">If you do it anyway, moves for a body part that needs a rest today will still be left out.</p>
         </Sheet>

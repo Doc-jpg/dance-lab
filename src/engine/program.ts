@@ -207,7 +207,7 @@ export function buildSession(template: WorkoutTemplate, readiness: Readiness, ct
       else if (ti.optional) { changes.push(`${why}, so it is out today.`); continue; }
       else { changes.push(`${why}, so it is out today.`); continue; }
     }
-    if (reduced && ex.loadTags.includes('jump')) { changes.push(`${ex.name} is out today because it is an easy day.`); continue; }
+    if (reduced && ex.loadTags.includes('jump')) { changes.push(`${ex.name} is out today because today is a gentle day.`); continue; }
     const base = swappedFrom ? ex.defaultDose : ti.dose;
     const decision = decideDose(ex, base, ctx, phase, reduced);
     items.push({

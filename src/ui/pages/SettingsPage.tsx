@@ -22,7 +22,7 @@ export function VisibilityCard() {
       <p className="small">{parent} has a page that opens with a secret number. It shows:</p>
       <ul className="small step-list">
         <li>Workouts you finished or skipped, and how they felt</li>
-        <li>What you did each day (dance, play), your answers to the questions, and your easy days</li>
+        <li>What you did each day (dance, play), your answers to the questions, and your gentle days</li>
         <li>Your progress and badges</li>
         <li>Journal notes, unless you marked them private</li>
         <li>Warnings: something hurt, you felt sick or dizzy, you stopped a workout, a recital day, or a week with no rest day</li>

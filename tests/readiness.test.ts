@@ -19,7 +19,7 @@ describe('readiness engine (dance)', () => {
     expect(r.blocked).toEqual([]);
   });
 
-  it('a normal dance class makes a yellow day: the Easy workout, one set each', () => {
+  it('a normal dance class makes a yellow day: the Short gentle workout, one set each', () => {
     const r = assessReadiness({ day: DAY, checkIn: fine, logs: [log({})], sessions: [], settings, planned: strength, fallback: flex });
     expect(r.color).toBe('yellow');
     expect(r.offer.templateId).toBe('light');
@@ -49,7 +49,7 @@ describe('readiness engine (dance)', () => {
     expect(hard.color).toBe('orange');
   });
 
-  it('pain, illness or dizziness is red: only the Easy day (breathing), with a parent alert', () => {
+  it('pain, illness or dizziness is red: only Just breathing (breathing), with a parent alert', () => {
     for (const k of ['pain', 'sick', 'dizzy'] as const) {
       const r = assessReadiness({ day: DAY, checkIn: { ...fine, [k]: true }, logs: [], sessions: [], settings });
       expect(r.color).toBe('red');
@@ -104,7 +104,7 @@ describe('readiness engine (dance)', () => {
     expect(logLoad(log({ performance: true, duration: 'short', intensity: 'easy' }))).toBe(9);
   });
 
-  it('the chain counts any done session or logged activity, Easy day included', () => {
+  it('the chain counts any done session or logged activity, Just breathing included', () => {
     const c = chain([done(addDays(DAY, -1), 'recovery'), done(addDays(DAY, -2), 'foundations')], [log({ day: addDays(DAY, -3) })], DAY);
     expect(c.length).toBe(3);
     expect(c.aliveToday).toBe(false);

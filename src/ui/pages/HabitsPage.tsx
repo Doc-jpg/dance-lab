@@ -15,7 +15,7 @@ const HABITS: Array<{ key: HabitKey; title: string; text: string }> = [
   { key: 'play', title: 'Normal play', text: 'Bikes, tag, climbing, cartwheels in the yard, dancing in the kitchen. Counts for a lot.' }
 ];
 
-/** The Daily 5, the everyday habits, this week's missions, and the healthy-habits notes. No calories, no weight, nothing about shape. */
+/** The Five-minute mini workout, the everyday habits, this week's missions, and the healthy-habits notes. No calories, no weight, nothing about shape. */
 export function HabitsPage() {
   const nav = useNavigate();
   const day = useToday();
@@ -51,7 +51,7 @@ export function HabitsPage() {
     <div className="col">
       <h1>Habits</h1>
       <div className="card row between">
-        <div className="grow"><strong>Daily 5</strong><div className="small muted">Balloon breathing, cat and cow, starfish, ankle rocks, butterfly, stork. About 5 minutes. It is moving, not a workout, so it is fine on top of anything else. Skip it when you are sick, hurt or wiped out.</div></div>
+        <div className="grow"><strong>Five-minute mini workout</strong><div className="small muted">Balloon breathing, cat and cow, starfish, ankle rocks, butterfly, stork. About 5 minutes. It is small and easy, so it is fine on top of anything else. Skip it when you are sick, hurt or wiped out.</div></div>
         {foundationsDone ? <span className="pill green">Done</span> : readiness?.foundations === 'no' ? <span className="pill red">Not today</span> : <button className="btn primary" onClick={doFoundations}>Do it</button>}
       </div>
 
