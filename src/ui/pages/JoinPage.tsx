@@ -56,7 +56,7 @@ export function JoinPage() {
       <div className="col">
         <div className="hero"><h1>{APP_NAME}</h1><div className="sub">Connected.</div></div>
         <div className="card">
-          <p className="small">This phone now follows the dancer's device: check-ins, sessions and shared notes show up here whenever either one opens the app with a signal, and your settings go back the same way. Nothing is ever needed from him.</p>
+          <p className="small">This phone now follows the dancer's device: check-ins, workouts and shared notes show up here whenever either one opens the app with a signal, and your settings go back the same way. Nothing is ever needed from him.</p>
           <button className="btn primary lg block" onClick={() => nav('/settings')}>Open Settings</button>
         </div>
       </div>

@@ -138,7 +138,7 @@ describe('session building from a template', () => {
     const statuses = new Map<string, ExerciseStatus>([['fx-frog', { exerciseId: 'fx-frog', approvedLoads: [], disabled: true, updatedAt: '' }]]);
     const { session, changes } = buildSession(TEMPLATE_BY_ID['flex'], r, { ...base, statuses });
     expect(session.items.map((i) => i.exerciseId)).not.toContain('fx-frog');
-    expect(changes.join(' ')).toMatch(/turned off/);
+    expect(changes.join(' ')).toMatch(/turned it off/);
   });
 
   it('the Easy day is two minutes of breathing and an optional walk', () => {
@@ -150,7 +150,7 @@ describe('session building from a template', () => {
   });
 
   it('doseText reads like a kid would say it', () => {
-    expect(doseText({ sets: 2, reps: 8, repsMax: 12 })).toBe('2 × 8 to 12 reps');
-    expect(doseText({ sets: 1, seconds: 30, perSide: true })).toBe('1 × 30 sec per side');
+    expect(doseText({ sets: 2, reps: 8, repsMax: 12 })).toBe('8 to 12 times, 2 rounds');
+    expect(doseText({ sets: 1, seconds: 30, perSide: true })).toBe('hold 30 seconds, each side');
   });
 });

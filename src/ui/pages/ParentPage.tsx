@@ -52,7 +52,7 @@ export function ParentPage() {
   return (
     <div className="col">
       <div className="row between"><h1>Parent view</h1><Link className="btn sm" to="/settings">Back</Link></div>
-      {deviceRole === 'parent' && <div className="banner info small">This is the parent copy. {name} checks in and does her sessions on her own device; {settings.sync?.enabled ? 'her records arrive here on their own.' : 'her records arrive here as a parent pack (Settings tab, Backup, Restore or merge).'}</div>}
+      {deviceRole === 'parent' && <div className="banner info small">This is the parent copy. {name} checks in and does her workouts on her own device; {settings.sync?.enabled ? 'her records arrive here on their own.' : 'her records arrive here as a parent pack (Settings tab, Backup, Restore or merge).'}</div>}
       <div className="btn-grid cols-3">
         <button className={`btn ${tab === 'week' ? 'primary' : ''}`} onClick={() => setTab('week')}>This week</button>
         <button className={`btn ${tab === 'exercises' ? 'primary' : ''}`} onClick={() => setTab('exercises')}>Exercises</button>
@@ -161,7 +161,7 @@ export function ParentPage() {
 
           <div className="card">
             <h3>Sample data and starting over</h3>
-            <p className="small muted">Three weeks of made-up history, marked as sample, to see what Progress and the parent view look like before {name} has any. Remove it before her first real session.</p>
+            <p className="small muted">Three weeks of made-up history, marked as sample, to see what Progress and the parent view look like before {name} has any. Remove it before her first real workout.</p>
             <div className="col mt">
               {demoLoaded ? <button className="btn block" onClick={async () => { const n = await removeDemo(db); toast.show(`Removed ${n} sample records`); }}>Remove the sample data</button> : <button className="btn block" onClick={async () => { await loadDemo(db); toast.show('Three weeks of sample data added'); }}>Add three weeks of sample data</button>}
               <button className="btn ghost sm" style={{ color: 'var(--danger)' }} onClick={() => setResetOpen(true)}>Erase everything on this device</button>

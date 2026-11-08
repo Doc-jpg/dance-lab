@@ -1,6 +1,6 @@
 /**
  * The glue between the engines and the database: what Today needs, and the writes that follow a
- * check-in, a session, or a finished workout (flags for parents, badges, missions).
+ * check-in, a session, or a finished session (flags for parents, badges, missions).
  */
 import { db, addFlag, saveSession, updateSession, saveCheckIn, getSettings, addJournal } from '../db/db';
 import type { Athlete, CheckIn, Day, Exercise, ExerciseStatus, Session, SportsLog, WorkoutTemplate, Who, Achievement, JournalEntry, HabitLog, Mission } from './types';
@@ -43,7 +43,7 @@ export async function recordCheckIn(input: Omit<CheckIn, 'id' | 'ts' | 'color'>,
   return { checkIn, readiness };
 }
 
-/** Make today's session from a template and the verdict, save it as planned, return it. */
+/** Make today's workout from a template and the verdict, save it as planned, return it. */
 export async function planSession(templateId: string, readiness: Readiness, ctx: TodayContext, by: Who): Promise<Session> {
   const template = ctx.templates.find((t) => t.id === templateId);
   if (!template) throw new Error('Template not found');

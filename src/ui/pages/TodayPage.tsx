@@ -8,7 +8,7 @@ import { TourOffer } from '../components/Tour';
 import { readinessFor, recordCheckIn, planSession, ensureMessageShown, type TodayContext } from '../../engine/today';
 import { addSportsLog, db, updateSession } from '../../db/db';
 import { pickMessage, daysSinceLastSession, CATEGORY_WORDS } from '../../engine/habits';
-import { addDays, SPORT_WORDS, DURATION_WORDS, INTENSITY_WORDS, type SportsLog, type Sport } from '../../engine/types';
+import { addDays, SPORT_WORDS, DURATION_WORDS, INTENSITY_WORDS, FEEL_WORDS, SLEEP_WORDS, type SportsLog, type Sport } from '../../engine/types';
 import { estimateMinutes } from '../../engine/program';
 import { COLOR_WORDS, chain } from '../../engine/readiness';
 import { APP_NAME } from '../version';
@@ -90,21 +90,21 @@ export function TodayPage() {
       <div className="card" data-tour="checkin">
         {checkIn ? (
           <div className="row between">
-            <div className="grow"><strong>Checked in</strong><div className="small muted">Energy {checkIn.energy}/5 · Sleep {checkIn.sleep}/5 · {checkIn.soreness === 'none' ? 'Not sore' : checkIn.soreness === 'some' ? 'A little sore' : 'Very sore'}{checkIn.pain ? ' · Something hurts' : ''}{checkIn.sick ? ' · Sick' : ''}</div></div>
-            <button className="btn sm" onClick={() => setCheckInOpen(true)}>Change</button>
+            <div className="grow"><strong>You answered today's questions</strong><div className="small muted">Energy: {FEEL_WORDS[checkIn.energy]} · Sleep: {SLEEP_WORDS[checkIn.sleep]} · {checkIn.soreness === 'none' ? 'Not sore' : checkIn.soreness === 'some' ? 'A little sore' : 'Very sore'}{checkIn.pain ? ' · Something hurts' : ''}{checkIn.sick ? ' · Feeling sick' : ''}</div></div>
+            <button className="btn sm" onClick={() => setCheckInOpen(true)}>Change my answers</button>
           </div>
         ) : (
           <div className="col">
-            <div><strong>How are you today?</strong><div className="small muted">What you did and how you feel. Thirty seconds, then the app picks the right kind of day.</div></div>
-            <button className="btn primary xl block" onClick={() => setCheckInOpen(true)}>Check in</button>
+            <div><strong>Start here: how are you today?</strong><div className="small muted">A few quick questions about what you did and how you feel. Then the app picks what you do today.</div></div>
+            <button className="btn primary xl block" onClick={() => setCheckInOpen(true)}>Answer the questions</button>
           </div>
         )}
       </div>
 
       {/* 2. Sports already logged */}
       <div className="card">
-        <div className="row between"><h3>Dance and play today</h3><button className="btn sm" onClick={() => setSportOpen(newSportDraft((athlete.sports[0] as Sport) || 'dance'))}>+ Add</button></div>
-        {todayLogs.length === 0 ? <div className="small muted">Nothing logged yet. Dance class, PE, playing outside: anything that got you moving.</div> : (
+        <div className="row between"><h3>What you did today</h3><button className="btn sm" onClick={() => setSportOpen(newSportDraft((athlete.sports[0] as Sport) || 'dance'))}>+ Add</button></div>
+        {todayLogs.length === 0 ? <div className="small muted">Nothing added yet. Dance class, PE, playing outside: anything that got you moving.</div> : (
           <div className="list mt">{todayLogs.map((l) => <SportRow key={l.id} log={l} />)}</div>
         )}
       </div>
@@ -113,17 +113,17 @@ export function TodayPage() {
       {readiness && (
         <div className={`ready ${readiness.color}`} data-tour="ready">
           <div className="row between">
-            <div className="row"><span className="color-dot" /><h2>{checkIn ? readiness.headline : 'Check in for today\'s plan'}</h2></div>
-            <span className={`pill ${readiness.color}`}>{checkIn ? COLOR_WORDS[readiness.color] : 'Before check-in'}</span>
+            <div className="row"><span className="color-dot" /><h2>{checkIn ? readiness.headline : 'Answer the questions first'}</h2></div>
+            <span className={`pill ${readiness.color}`}>{checkIn ? COLOR_WORDS[readiness.color] : 'Not yet'}</span>
           </div>
           {checkIn && (
             <>
               <ul className="why">{readiness.reasons.slice(0, 3).map((r, i) => <li key={i}>{r}</li>)}{readiness.blockedWhy.map((r, i) => <li key={'b' + i}>{r}</li>)}</ul>
               {readiness.reasons.length > 3 && <button className="btn ghost sm" onClick={() => setWhyOpen(true)}>Why this day</button>}
-              {readiness.color !== 'red' && <div className="small muted mt">These colors are a guide for a healthy kid, not a doctor's opinion.</div>}
+              {readiness.color !== 'red' && <div className="small muted mt">The color is a helper, not a doctor. If something really hurts, tell a grown-up.</div>}
             </>
           )}
-          {!checkIn && <div className="small muted mt">The app works out the day from your check-in plus the last few days of dance, play and sessions.</div>}
+          {!checkIn && <div className="small muted mt">The app picks your day from your answers, plus what you did the last few days.</div>}
         </div>
       )}
 
@@ -133,7 +133,7 @@ export function TodayPage() {
           <div className="row between"><div><strong>{mainDone.templateName} done</strong><div className="small muted">Nice work. See the summary or add a note.</div></div><Link className="btn sm" to={`/sessions/${mainDone.id}`}>Summary</Link></div>
         ) : readiness?.color === 'red' && checkIn ? (
           <div className="col">
-            <div><strong>Today: Easy day</strong><div className="small">Two minutes of slow breathing. That is your whole day, and it still counts. Tell a grown-up how you feel; rest, water, food. Tomorrow is a new check-in.</div></div>
+            <div><strong>Today: Easy day</strong><div className="small">Two minutes of slow breathing. That is your whole day, and it still counts. Tell a grown-up how you feel. Rest, water, food. Tomorrow you answer the questions again.</div></div>
             {openSession && openSession.status === 'in_progress' ? (
               <button className="btn primary xl block" onClick={() => nav(`/workout/${openSession.id}`)}>Continue Easy day</button>
             ) : (
@@ -143,11 +143,11 @@ export function TodayPage() {
           </div>
         ) : readiness?.offer ? (
           <div className="col">
-            <div><strong>{checkIn ? 'Today: ' : 'If today is a normal day: '}{readiness.offer.name}</strong><div className="small muted">About {offerMinutes(readiness.offer.templateId)} minutes{readiness.offer.reduced ? ', one set each, easy pace' : ''}. {readiness.offer.kind === 'recovery' ? 'That is the whole workout today. Five minutes and you are done.' : ''}</div></div>
+            <div><strong>{checkIn ? 'Today: ' : 'If today is a normal day: '}{readiness.offer.name}</strong><div className="small muted">About {offerMinutes(readiness.offer.templateId)} minutes{readiness.offer.reduced ? '. Each move just once, nice and easy' : ''}. {readiness.offer.kind === 'recovery' ? 'That is the whole workout today. Five minutes and you are done.' : ''}</div></div>
             {openSession && openSession.status === 'in_progress' ? (
               <button className="btn primary xl block" onClick={() => nav(`/workout/${openSession.id}`)}>Continue {openSession.templateName}</button>
             ) : (
-              <button className="btn primary xl block" onClick={() => start(readiness.offer.templateId)}>{checkIn ? 'Start' : 'Check in, then start'}</button>
+              <button className="btn primary xl block" onClick={() => start(readiness.offer.templateId)}>{checkIn ? 'Start' : 'Answer the questions, then start'}</button>
             )}
             <div className="row">
               <button className="btn grow" onClick={skip}>Skip today</button>
@@ -157,7 +157,7 @@ export function TodayPage() {
         ) : null}
         {readiness && readiness.foundations !== 'no' && !foundationsDone && (
           <div className="row between mt" style={{ borderTop: '1px solid var(--line)', paddingTop: 10 }}>
-            <div className="grow"><strong>Daily 5</strong><div className="small muted">Five easy minutes, any day{readiness.foundations === 'optional' ? ', only if it feels good' : ''}.</div></div>
+            <div className="grow"><strong>Daily 5</strong><div className="small muted">Five easy minutes you can add on any day{readiness.foundations === 'optional' ? ', but only if it feels good today' : ''}.</div></div>
             <button className="btn sm" onClick={() => start('foundations')}>Do it</button>
           </div>
         )}
@@ -171,12 +171,12 @@ export function TodayPage() {
           <div className="text">{message.text}</div>
         </div>
       )}
-      {unacked.length > 0 && mode === 'athlete' && <div className="banner warn small">Today's check-in is marked for a parent to see. That is the app doing its job, not you being in trouble.</div>}
+      {unacked.length > 0 && mode === 'athlete' && <div className="banner warn small">Your answers today are marked for a grown-up to see. That is the app doing its job. You are not in trouble.</div>}
 
       {/* 6. Yesterday */}
       <div className="card">
-        <div className="row between"><h3>Yesterday</h3><Link className="small" to="/progress">All history</Link></div>
-        {ySessions.length === 0 && yLogs.length === 0 ? <div className="small muted">Nothing logged {fmtDate(yesterday)}. That is fine.</div> : (
+        <div className="row between"><h3>Yesterday</h3><Link className="small" to="/progress">See everything</Link></div>
+        {ySessions.length === 0 && yLogs.length === 0 ? <div className="small muted">Nothing added for {fmtDate(yesterday)}. That is fine.</div> : (
           <div className="list mt">
             {ySessions.map((s) => <Link key={s.id} className="item tappable" to={`/sessions/${s.id}`}><div className="grow"><div className="title">{s.templateName}</div><div className="sub">{s.items.filter((i) => i.sets.some((x) => x.done)).length} exercises{s.overallDifficulty ? ` · felt ${['', 'easy', 'pretty easy', 'okay', 'hard', 'very hard'][s.overallDifficulty]}` : ''}{s.note ? ` · "${s.note}"` : ''}</div></div><span className="chev">›</span></Link>)}
             {yLogs.map((l) => <SportRow key={l.id} log={l} />)}
@@ -186,7 +186,7 @@ export function TodayPage() {
 
       {checkInOpen && <CheckInSheet name={name} onSave={saveCheckIn} onClose={() => setCheckInOpen(false)} />}
       {sportOpen && (
-        <Sheet title="Add dance or play" onClose={() => setSportOpen(null)} footer={<><button className="btn" onClick={() => setSportOpen(null)}>Cancel</button><button className="btn primary" onClick={async () => { await addSportsLog(toLog(sportOpen, day, mode)); setSportOpen(null); toast.show('Added'); }}>Add</button></>}>
+        <Sheet title="Add something you did" onClose={() => setSportOpen(null)} footer={<><button className="btn" onClick={() => setSportOpen(null)}>Cancel</button><button className="btn primary" onClick={async () => { await addSportsLog(toLog(sportOpen, day, mode)); setSportOpen(null); toast.show('Added'); }}>Add</button></>}>
           <div className="chips mb">{(['dance', 'gymnastics', 'pe', 'play', 'swimming', 'bike', 'other'] as Sport[]).map((s) => <button key={s} className={`chip sm ${sportOpen.sport === s ? 'on' : ''}`} onClick={() => setSportOpen({ ...sportOpen, sport: s })}>{SPORT_WORDS[s]}</button>)}</div>
           <SportCard draft={sportOpen} onChange={setSportOpen} onRemove={() => setSportOpen(null)} />
         </Sheet>

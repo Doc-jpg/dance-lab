@@ -6,7 +6,7 @@ import { SYNC_AVAILABLE } from '../../sync-config';
 import { useToast } from '../components/Sheet';
 import { useAthlete } from '../hooks';
 import { useTour } from '../components/Tour';
-import type { ThemeChoice } from '../../engine/types';
+import { THEME_WORDS, type ThemeChoice } from '../../engine/types';
 import { nowIso } from '../../engine/types';
 import { APP_NAME } from '../version';
 
@@ -110,7 +110,7 @@ export function SetupPage() {
     <div className="col">
       <div className="hero">
         <h1>{APP_NAME}</h1>
-        <div className="sub">Strength, mobility, athletic movement and good habits for one young athlete, adjusted to every day.</div>
+        <div className="sub">Stretching, strength and balance for a dancer. A little bit every day.</div>
       </div>
 
       {step === 'who' && (
@@ -118,7 +118,7 @@ export function SetupPage() {
           <h3>For the parent · whose device is this?</h3>
           <p className="small muted">Setup takes two minutes and is the parent's part. After it, the app talks to your dancer.</p>
           <div className="col mt">
-            <button className="btn lg block" style={{ minHeight: 72, flexDirection: 'column', alignItems: 'flex-start', gap: 2 }} onClick={() => { setRole('athlete'); setStep('parent'); }}><span>My dancer's device (the main one) ›</span><span className="small muted" style={{ fontWeight: 500 }}>She checks in and does her sessions on it. You get a PIN-protected parent view on it too, and a link for your own phone.</span></button>
+            <button className="btn lg block" style={{ minHeight: 72, flexDirection: 'column', alignItems: 'flex-start', gap: 2 }} onClick={() => { setRole('athlete'); setStep('parent'); }}><span>My dancer's device (the main one) ›</span><span className="small muted" style={{ fontWeight: 500 }}>She checks in and does her workouts on it. You get a PIN-protected parent view on it too, and a link for your own phone.</span></button>
             <button className="btn lg block" style={{ minHeight: 72, flexDirection: 'column', alignItems: 'flex-start', gap: 2 }} onClick={() => { setRole('parent'); setStep(SYNC_AVAILABLE ? 'join' : 'parent'); }}><span>My own phone (a parent copy) ›</span><span className="small muted" style={{ fontWeight: 500 }}>{SYNC_AVAILABLE ? 'Set up her device first; it gives you a link or a code. Open the link here, or type the code, and everything she does shows up on its own.' : 'Shows the parent dashboard and receives her records as a file she sends you. Set up her device first.'}</span></button>
           </div>
         </div>
@@ -154,7 +154,7 @@ export function SetupPage() {
           <p className="small">Everything {name.trim() || 'she'} does on this device will show up on yours on its own, and your settings will show up here. To connect your phone, send yourself this link and open it there (Messages or AirDrop to yourself works).</p>
           <button className="btn primary lg block" onClick={shareLink}>Send myself the parent link</button>
           <p className="small muted mt">Or type this code on your phone under "My own phone": <strong className="mono">{formatCode(familySecret)}</strong></p>
-          <p className="small muted">The link holds a private family code. Keep it to yourself; anyone with it could see her sessions. It is also under the parent view, Linked devices, any time.</p>
+          <p className="small muted">The link holds a private family code. Keep it to yourself; anyone with it could see her workouts. It is also under the parent view, Linked devices, any time.</p>
           <button className="btn block mt" onClick={() => setStep('handoff')}>Done. Hand it over</button>
         </div>
       )}
@@ -178,14 +178,18 @@ export function SetupPage() {
       {step === 'handoff' && (
         <div className="card">
           <h2>Hey {name}, this is yours</h2>
-          <p className="small muted">Pick a look. You can change it later in Settings.</p>
+          <p className="small muted">Pick the colors you like. Tap one to try it. You can change it later in Settings.</p>
           <div className="btn-grid cols-3">
-            {([['play', 'Playful'], ['minimal', 'Calm'], ['pro', 'Stage']] as Array<[ThemeChoice, string]>).map(([k, label]) => (
-              <button key={k} className={`theme-swatch ${theme === k ? 'on' : ''}`} onClick={async () => { setTheme(k); document.documentElement.setAttribute('data-theme', k); const a = await db.athlete.get('athlete'); if (a) await db.athlete.put({ ...a, theme: k }); }}>{label}</button>
+            {(Object.keys(THEME_WORDS) as ThemeChoice[]).map((k) => (
+              <button key={k} className={`theme-swatch ${theme === k ? 'on' : ''}`} onClick={async () => { setTheme(k); document.documentElement.setAttribute('data-theme', k); const a = await db.athlete.get('athlete'); if (a) await db.athlete.put({ ...a, theme: k }); }} aria-label={THEME_WORDS[k].name}>
+                <span className="theme-dots"><i style={{ background: THEME_WORDS[k].colors[0] }} /><i style={{ background: THEME_WORDS[k].colors[1] }} /></span>
+                <span>{THEME_WORDS[k].name}</span>
+                <span className="tiny muted">{THEME_WORDS[k].sub}</span>
+              </button>
             ))}
           </div>
-          <p className="small mt">Every day starts with a quick check-in: dance or play you did and how you feel. Then the app picks the right kind of day and shows you the session one move at a time. Skipping is always allowed.</p>
-          <p className="small">{parentName || 'Your parent'} has a PIN-protected view of your sessions, dance days and progress. Settings shows exactly what that includes; notes you mark private stay private.</p>
+          <p className="small mt">Every day starts with a few quick questions: what you did and how you feel. Then the app picks what you do today and shows you one move at a time. You are always allowed to skip.</p>
+          <p className="small">{parentName || 'Your parent'} can see your workouts, your dance days and your progress (it takes a secret number to open). Settings shows exactly what that includes. Notes you mark private stay private.</p>
           <div className="col mt">
             <button className="btn primary lg block" onClick={() => { nav('/today'); setTimeout(tour.start, 200); }}>Take the one-minute tour</button>
             <button className="btn block" onClick={() => nav('/today')}>Skip the tour</button>
@@ -196,7 +200,7 @@ export function SetupPage() {
       {step === 'parentdone' && (
         <div className="card">
           <h2>Parent copy ready</h2>
-          <p className="small">This phone shows the parent dashboard. {name}'s check-ins and sessions happen on her device; they reach this one as a file:</p>
+          <p className="small">This phone shows the parent dashboard. {name}'s check-ins and workouts happen on her device; they reach this one as a file:</p>
           <ol className="step-list small">
             <li>On {name}'s device: Settings, open the parent view with your PIN, Backup, <strong>Make a parent pack</strong>, AirDrop or Message it to yourself.</li>
             <li>On this phone: Settings, parent view, Backup, <strong>Restore or merge</strong>, pick the file, <strong>Merge</strong>.</li>

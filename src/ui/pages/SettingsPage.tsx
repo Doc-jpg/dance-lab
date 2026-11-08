@@ -7,7 +7,7 @@ import { BackupPanel } from '../components/BackupPanel';
 import { SyncCard } from '../components/SyncCard';
 import { Sheet, useToast } from '../components/Sheet';
 import { useTour } from '../components/Tour';
-import type { ThemeChoice } from '../../engine/types';
+import { THEME_WORDS, type ThemeChoice } from '../../engine/types';
 import { nowIso } from '../../engine/types';
 import { APP_NAME, APP_VERSION } from '../version';
 
@@ -19,15 +19,15 @@ export function VisibilityCard() {
   return (
     <div className="card" data-tour="parent" style={{ borderLeft: '4px solid var(--accent-2)' }}>
       <h3>What {parent} can see</h3>
-      <p className="small">{parent} has a view behind a PIN. It shows:</p>
+      <p className="small">{parent} has a page that opens with a secret number. It shows:</p>
       <ul className="small step-list">
-        <li>Finished and skipped sessions, with sets, how they felt, and session notes</li>
-        <li>Dance and play you logged, check-ins, and easy days</li>
-        <li>Progress charts and badges</li>
-        <li>Journal notes that are not marked private</li>
-        <li>Safety alerts: pain, feeling sick, dizziness, a stopped session, a performance day, or a week with no rest day</li>
+        <li>Workouts you finished or skipped, and how they felt</li>
+        <li>What you did each day (dance, play), your answers to the questions, and your easy days</li>
+        <li>Your progress and badges</li>
+        <li>Journal notes, unless you marked them private</li>
+        <li>Warnings: something hurt, you felt sick or dizzy, you stopped a workout, a recital day, or a week with no rest day</li>
       </ul>
-      <p className="small">{settings.sync?.enabled ? `All of that goes to ${parent}'s phone on its own whenever this phone has a signal, so nobody has to send anything. ` : ''}<strong>Not shown:</strong> journal notes marked private. There is no hidden tracking; this list is the whole list. {parent} can also turn moves on or off, set how many strength days a week, and manage reminders.</p>
+      <p className="small">{settings.sync?.enabled ? `All of that goes to ${parent}'s phone by itself whenever this device is online. Nobody has to send anything. ` : ''}<strong>Not shown:</strong> journal notes you marked private. Nothing is hidden; this list is the whole list. {parent} can also turn moves on or off and set how many strong days a week.</p>
       {!settings.visibilityNoticeSeenAt && athlete && <button className="btn sm" onClick={() => saveSettings({ visibilityNoticeSeenAt: nowIso() })}>Got it</button>}
     </div>
   );
@@ -71,9 +71,9 @@ export function SettingsPage() {
   if (!athlete) return null;
   const parentDoor = (
     <div className="card">
-      <h3>For {parent}</h3>
-      <p className="small muted">The parent view needs the PIN.</p>
-      {mode === 'parent' ? <Link className="btn primary block" to="/parent">Open the parent view</Link> : <button className="btn block" onClick={() => setPinOpen(true)}>Open the parent view</button>}
+      <h3>For {parent} only</h3>
+      <p className="small muted">This part is for {parent}. It opens with {parent}'s secret number.</p>
+      {mode === 'parent' ? <Link className="btn primary block" to="/parent">Open {parent}'s page</Link> : <button className="btn block" onClick={() => setPinOpen(true)}>Open {parent}'s page</button>}
     </div>
   );
   return (
@@ -82,15 +82,21 @@ export function SettingsPage() {
       {deviceRole === 'parent' && parentDoor}
 
       <div className="card">
-        <h3>Look</h3>
+        <h3>Colors</h3>
         <div className="btn-grid cols-3 mt">
-          {([['play', 'Playful'], ['minimal', 'Calm'], ['pro', 'Stage']] as Array<[ThemeChoice, string]>).map(([k, label]) => <button key={k} className={`theme-swatch ${athlete.theme === k ? 'on' : ''}`} onClick={() => updateAthlete({ theme: k })}>{label}</button>)}
+          {(Object.keys(THEME_WORDS) as ThemeChoice[]).map((k) => (
+              <button key={k} className={`theme-swatch ${athlete.theme === k ? 'on' : ''}`} onClick={() => updateAthlete({ theme: k })} aria-label={THEME_WORDS[k].name}>
+                <span className="theme-dots"><i style={{ background: THEME_WORDS[k].colors[0] }} /><i style={{ background: THEME_WORDS[k].colors[1] }} /></span>
+                <span>{THEME_WORDS[k].name}</span>
+                <span className="tiny muted">{THEME_WORDS[k].sub}</span>
+              </button>
+            ))}
         </div>
       </div>
 
       <div className="card">
         <h3>My goals</h3>
-        <p className="small muted">Your own words. "Hold a plank for 45 seconds." "Feel quicker on defense."</p>
+        <p className="small muted">In your own words. "Touch my toes." "Hold a plank for 30 seconds." "Get my splits one day."</p>
         <div className="list mt">
           {athlete.goals.filter((g) => g.status === 'active').map((g) => <div key={g.id} className="item"><div className="grow">{g.text}</div><button className="btn sm" onClick={() => setGoalStatus(g.id, 'done')}>Done</button></div>)}
           {athlete.goals.filter((g) => g.status === 'done').slice(0, 3).map((g) => <div key={g.id} className="item" style={{ opacity: .6 }}><div className="grow"><s>{g.text}</s></div><span className="pill green">Done</span></div>)}
@@ -114,7 +120,7 @@ export function SettingsPage() {
       {deviceRole !== 'parent' && parentDoor}
 
       <div className="card">
-        <div className="small muted">{APP_NAME} {APP_VERSION}. Set up for {athlete.firstName}. Works offline; everything is stored on this device. Not medical advice.</div>
+        <div className="small muted">{APP_NAME} {APP_VERSION}. Set up for {athlete.firstName}. Works with no internet; everything is saved on this device. It is a helper, not a doctor.</div>
       </div>
 
       {pinOpen && (

@@ -8,12 +8,12 @@ import { useClips } from '../hooks';
 import { Sheet, useToast } from '../components/Sheet';
 import { updateSession } from '../../db/db';
 import { finishSession } from '../../engine/today';
-import { doseText } from '../../engine/program';
+import { doseText, isHold } from '../../engine/program';
 import type { Exercise, Session, SessionItem, SetLog } from '../../engine/types';
 import { nowIso } from '../../engine/types';
 
 /**
- * The workout player. One exercise at a time, big buttons, one tap per set, optional rest timer,
+ * The session player. One exercise at a time, big buttons, one tap per set, optional rest timer,
  * easier/harder swaps, pause and resume, a quick note, and a Stop that takes pain seriously.
  * Live state is saved on every change so a closed app reopens exactly here.
  */
@@ -93,8 +93,8 @@ export function WorkoutPage() {
   }, [itemDone, rest, hold, isLastItem, index]);
 
   if (!session || !athlete || index === null) return <div className="empty">Opening…</div>;
-  if (session.status === 'done' || session.status === 'stopped' || session.status === 'skipped') return <div className="col"><div className="card"><strong>This session is finished.</strong></div><Link className="btn primary block" to={`/sessions/${session.id}`}>See the summary</Link></div>;
-  if (!current || !exercise) return <div className="col"><div className="card">Nothing to do in this session.</div><button className="btn primary block" onClick={() => setFinishOpen(true)}>Finish</button>{finishOpen && <FinishSheet session={session} onClose={() => setFinishOpen(false)} />}</div>;
+  if (session.status === 'done' || session.status === 'stopped' || session.status === 'skipped') return <div className="col"><div className="card"><strong>This workout is finished.</strong></div><Link className="btn primary block" to={`/sessions/${session.id}`}>See the summary</Link></div>;
+  if (!current || !exercise) return <div className="col"><div className="card">Nothing to do in this workout.</div><button className="btn primary block" onClick={() => setFinishOpen(true)}>Finish</button>{finishOpen && <FinishSheet session={session} onClose={() => setFinishOpen(false)} />}</div>;
 
   const planned = current.planned;
   const sets: SetLog[] = current.sets;
@@ -130,14 +130,14 @@ export function WorkoutPage() {
     setSwapOpen(false);
     toast.show(`Switched to ${target.name}`);
   };
-  const setLabel = (i: number) => (planned.perSide ? `${planned.perSide ? (i % 2 === 0 ? 'L' : 'R') : ''} set ${Math.floor(i / 2) + 1}` : `Set ${i + 1}`);
+  const setLabel = (i: number) => (planned.perSide ? `${i % 2 === 0 ? 'Left' : 'Right'}${planned.sets > 1 ? `, round ${Math.floor(i / 2) + 1}` : ''}` : `Round ${i + 1}`);
   const isLast = index === session.items.length - 1;
   const action = (() => {
         const nextIdx = sets.findIndex((x) => !x?.done) === -1 ? (allDone ? -1 : sets.length) : sets.findIndex((x) => !x?.done);
-        const which = totalSets > 1 && nextIdx >= 0 ? ` (${setLabel(nextIdx).toLowerCase()} of ${totalSets})` : '';
-        if (flash || allDone) return <div className="banner green" style={{ textAlign: 'center', fontWeight: 800, fontSize: 18 }}>✓ Done{isLastItem ? '. Tap Finish workout.' : flash ? '. Next one coming up…' : ''}</div>;
-        if (hold) return <div className="center" style={{ padding: '6px 0' }}><div className="small muted">{exercise.area === 'breathing' ? 'Breathe' : 'Keep going'}</div><div className="timer">{hold.left}</div><button className="btn mt" onClick={() => { completeSet(hold.setIdx); setHold(null); }}>Done early</button></div>;
-        if (rest !== null) return <div className="small muted center">Rest, then the next set.</div>;
+        const which = totalSets > 1 && nextIdx >= 0 ? (planned.perSide ? ` (${setLabel(nextIdx).toLowerCase().replace(', round', ' side, round')}${planned.sets > 1 ? ` of ${planned.sets}` : ' side'})` : ` (round ${nextIdx + 1} of ${totalSets})`) : '';
+        if (flash || allDone) return <div className="banner green" style={{ textAlign: 'center', fontWeight: 800, fontSize: 18 }}>✓ Done!{isLastItem ? ' Tap Finish workout.' : flash ? ' Next one coming up…' : ''}</div>;
+        if (hold) return <div className="center" style={{ padding: '6px 0' }}><div className="small muted">{exercise.area === 'breathing' ? 'Breathe slowly' : 'Keep going'}</div><div className="timer">{hold.left}</div><button className="btn mt" onClick={() => { completeSet(hold.setIdx); setHold(null); }}>Done early</button></div>;
+        if (rest !== null) return <div className="small muted center">Rest a little, then the next round.</div>;
         if (planned.seconds !== undefined) return <button className="btn primary xl block" onClick={() => setHold({ setIdx: Math.max(0, nextIdx), left: planned.seconds! })}>▶ Start the {planned.seconds} second timer{which}</button>;
         return <button className="btn primary xl block" onClick={() => completeSet(Math.max(0, nextIdx))}>✓ Did it{which}</button>;
       })();
@@ -146,7 +146,7 @@ export function WorkoutPage() {
     <div className="player">
       <div className="row between">
         <button className="btn sm" onClick={() => nav('/today')}>‹ Today</button>
-        <div className="row"><span className={`small ${paused ? 'muted' : ''}`} style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtClock(elapsed)} total</span><button className="btn sm" onClick={() => setPaused(!paused)}>{paused ? 'Resume' : 'Pause'}</button></div>
+        <div className="row"><span className={`small ${paused ? 'muted' : ''}`} style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtClock(elapsed)} so far</span><button className="btn sm" onClick={() => setPaused(!paused)}>{paused ? 'Resume' : 'Pause'}</button></div>
         <button className="btn sm stop-btn" onClick={() => setStopOpen(true)}>Stop</button>
       </div>
       <div className="progress-dots" aria-label={`Exercise ${index + 1} of ${session.items.length}`}>{session.items.map((it, i) => <i key={i} className={`${it.sets.some((s) => s.done) ? 'on' : ''} ${i === index ? 'now' : ''}`} />)}</div>
@@ -154,16 +154,16 @@ export function WorkoutPage() {
 
       <div className="card">
         <div className="exname">{exercise.name}</div>
-        <div className="dose">{doseText(planned)}</div>
+        <div className="dose">{doseText(planned, isHold(exercise.id))}</div>
         {current.doseReason && <div className="small muted">{current.doseReason}</div>}
-        {current.swappedFromName && <div className="small muted">In place of {current.swappedFromName}.</div>}
+        {current.swappedFromName && <div className="small muted">This is instead of {current.swappedFromName}.</div>}
         <Figure pose={exercise.pose} />
         <div className="mt">{action}</div>
         <div className="chips" style={{ marginTop: 6 }}>{exercise.cues.map((c) => <span key={c} className="cue">{c}</span>)}</div>
         <details className="fold"><summary>How to do it</summary><ol className="step-list">{exercise.steps.map((s, i) => <li key={i}>{s}</li>)}</ol>{exercise.commonErrors.length > 0 && <div className="small muted">Watch for: {exercise.commonErrors.map((e) => `${e.error.toLowerCase()} (${e.fix.toLowerCase()})`).join('; ')}</div>}</details>
-        <details className="fold"><summary>Why it matters</summary><p className="small">{exercise.develops} {exercise.why}</p><Link className="small" to={`/exercises/${exercise.id}`}>Full exercise page</Link></details>
+        <details className="fold"><summary>Why it helps your dancing</summary><p className="small">{exercise.develops} {exercise.why}</p><Link className="small" to={`/exercises/${exercise.id}`}>Read all about this move</Link></details>
         {clips.length > 0 && <button className="btn block mt" onClick={() => setWatchOpen(true)}>▶ Watch it</button>}
-        {current.note && current.note.startsWith('Ready to try') && <div className="banner green small">{current.note}. Tap Swap to try it, or stay here. Both are good choices.</div>}
+        {current.note && current.note.startsWith('Ready to try') && <div className="banner green small">{current.note}. Tap Swap to try it, or stay with this one. Both are good choices.</div>}
       </div>
 
       {planned.reps !== undefined && (
@@ -174,10 +174,10 @@ export function WorkoutPage() {
       )}
 
       {rest !== null ? (
-        <div className="card center"><div className="small muted">Rest</div><div className="timer">{rest}</div><button className="btn mt" onClick={() => setRest(null)}>Skip rest</button></div>
+        <div className="card center"><div className="small muted">Rest for a moment</div><div className="timer">{rest}</div><button className="btn mt" onClick={() => setRest(null)}>I am ready</button></div>
       ) : null}
 
-      <div className="small muted">Sets (tap one to undo)</div>
+      <div className="small muted">Rounds (tap a green one to undo it)</div>
       <div className="set-row">
         {Array.from({ length: totalSets }, (_, i) => {
           const done = sets[i]?.done;
@@ -191,7 +191,7 @@ export function WorkoutPage() {
       </div>
 
       <div className="row">
-        <button className="btn" onClick={() => setSwapOpen(true)}>Swap</button>
+        <button className="btn" onClick={() => setSwapOpen(true)}>Swap for another move</button>
         <FeltRow item={current} onChange={(p) => patchItem(index, p)} />
       </div>
       <QuickNote value={current.note && !current.note.startsWith('Ready to try') ? current.note : ''} onSave={(v) => patchItem(index, { note: v })} />
@@ -202,14 +202,14 @@ export function WorkoutPage() {
       </div>
 
       {swapOpen && (
-        <Sheet title="Swap this exercise" onClose={() => setSwapOpen(false)}>
+        <Sheet title="Do a different move instead" onClose={() => setSwapOpen(false)}>
           <div className="list">
-            {[exercise.easier && { e: exercises.get(exercise.easier), tag: 'Easier' }, exercise.harder && { e: exercises.get(exercise.harder), tag: 'Harder' }, ...exercise.substitutes.map((id) => ({ e: exercises.get(id), tag: 'Instead' }))]
+            {[exercise.easier && { e: exercises.get(exercise.easier), tag: 'Easier' }, exercise.harder && { e: exercises.get(exercise.harder), tag: 'Harder' }, ...exercise.substitutes.map((id) => ({ e: exercises.get(id), tag: 'Instead of it' }))]
               .filter((x): x is { e: Exercise; tag: string } => !!x && !!x.e && !x.e.archived)
               .filter((x) => !(x.e.needsFormCheck && !statuses.get(x.e.id)?.formCheckedAt))
               .map((x) => <button key={x.e.id} className="item tappable" onClick={() => swapTo(x.e)}><div className="grow"><div className="title">{x.e.name}</div><div className="sub">{x.e.develops}</div></div><span className="pill">{x.tag}</span></button>)}
           </div>
-          <p className="small muted mt">Harder versions a parent has not watched yet do not show up here.</p>
+          <p className="small muted mt">Harder moves that a grown-up has not watched you do yet are not on this list.</p>
         </Sheet>
       )}
       {watchOpen && <Sheet title={exercise.name} onClose={() => setWatchOpen(false)}><Watch exerciseId={exercise.id} who={mode} /></Sheet>}
@@ -223,7 +223,7 @@ export function WorkoutPage() {
 function FeltRow({ item, onChange }: { item: SessionItem; onChange: (p: Partial<SessionItem>) => void }) {
   return (
     <div className="row grow" style={{ justifyContent: 'flex-end' }}>
-      <span className="small muted">Felt</span>
+      <span className="small muted">It felt</span>
       <button className={`btn sm ${item.feltGood === true ? 'green' : ''}`} onClick={() => onChange({ feltGood: item.feltGood === true ? undefined : true })}>Good</button>
       <button className={`btn sm ${item.feltGood === false ? 'selected' : ''}`} onClick={() => onChange({ feltGood: item.feltGood === false ? undefined : false })}>Not great</button>
     </div>
@@ -238,14 +238,14 @@ function QuickNote({ value, onSave }: { value: string; onSave: (v: string) => vo
 
 function StopSheet({ session, onClose }: { session: Session; onClose: () => void }) {
   const nav = useNavigate();
-  const reasons: Array<[Session['stoppedReason'], string]> = [['pain', 'Something hurts'], ['dizzy', 'Dizzy or lightheaded'], ['sick', 'Feeling sick'], ['tired', 'Too tired'], ['time', 'Out of time'], ['other', 'Something else']];
+  const reasons: Array<[Session['stoppedReason'], string]> = [['pain', 'Something hurts'], ['dizzy', 'Dizzy'], ['sick', 'Feeling sick'], ['tired', 'Too tired'], ['time', 'Out of time'], ['other', 'Something else']];
   const stop = async (r: Session['stoppedReason']) => {
     await finishSession(session.id, { status: 'stopped', stoppedReason: r }, session.day);
     nav(`/sessions/${session.id}`);
   };
   return (
     <Sheet title="Stop the workout" onClose={onClose}>
-      <p className="small muted">Stopping is always okay. If something hurts, you are dizzy, or you feel sick, stop now and tell a parent. That is the smart move.</p>
+      <p className="small muted">Stopping is always okay. If something hurts, you feel dizzy, or you feel sick, stop right now and tell a grown-up. That is the smart thing to do. Why are you stopping?</p>
       <div className="list">{reasons.map(([r, label]) => <button key={r} className={`btn lg ${r === 'pain' || r === 'dizzy' || r === 'sick' ? 'stop-btn' : ''}`} onClick={() => stop(r)}>{label}</button>)}</div>
     </Sheet>
   );
@@ -265,13 +265,13 @@ function FinishSheet({ session, onClose }: { session: Session; onClose: () => vo
     nav(`/sessions/${session.id}`, { state: { earned: earned.map((e) => e.title) } });
   };
   return (
-    <Sheet title="How was it?" onClose={onClose} footer={<><button className="btn" onClick={onClose}>Not yet</button><button className="btn primary" disabled={busy} onClick={save}>Save workout</button></>}>
+    <Sheet title="All done! How was it?" onClose={onClose} footer={<><button className="btn" onClick={onClose}>Wait, go back</button><button className="btn primary" disabled={busy} onClick={save}>Save my workout</button></>}>
       <h3>How hard was it?</h3>
       <div className="btn-grid cols-5">{([1, 2, 3, 4, 5] as const).map((d) => <button key={d} className={`btn ${difficulty === d ? 'primary' : ''}`} onClick={() => setDifficulty(d)}>{words[d]}</button>)}</div>
-      <h3 className="mt">Did the movement feel good?</h3>
+      <h3 className="mt">Did your body feel good doing it?</h3>
       <div className="btn-grid"><button className={`btn ${feltGood === true ? 'green' : ''}`} onClick={() => setFeltGood(true)}>Yes</button><button className={`btn ${feltGood === false ? 'selected' : ''}`} onClick={() => setFeltGood(false)}>Not really</button></div>
-      <div className="field mt"><label>One line for the journal (optional)</label><input className="input" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Pike stretch reached further today." /></div>
-      <p className="small muted">The app uses "easy" two sessions in a row to add a little next time. "Hard" eases back. Honest answers make it work.</p>
+      <div className="field mt"><label>Want to write one line about it? (you can leave this empty)</label><input className="input" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Pike stretch reached further today." /></div>
+      <p className="small muted">If you say "easy" two times in a row, the app adds a little next time. If you say "hard", it takes a little away. Honest answers make it work.</p>
     </Sheet>
   );
 }

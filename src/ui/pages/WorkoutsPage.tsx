@@ -4,11 +4,13 @@ import { useAthlete, useCheckIns, useExercises, useSessions, useSettings, useSpo
 import { useMode } from '../mode';
 import { readinessFor, planSession, type TodayContext } from '../../engine/today';
 import { AREA_WORDS } from '../../data/exercises';
-import type { Area, Exercise } from '../../engine/types';
+import { LEVEL_WORDS, type Area, type Exercise } from '../../engine/types';
 import { Sheet } from '../components/Sheet';
 import { programPhase } from '../../engine/program';
 
 /** Sessions (templates) at the top, the whole exercise library under them, history at the bottom. */
+const ORDER = ['flex', 'strength', 'feet', 'foundations', 'light', 'recovery', 'easy'];
+
 export function WorkoutsPage() {
   const nav = useNavigate();
   const day = useToday();
@@ -54,16 +56,16 @@ export function WorkoutsPage() {
   return (
     <div className="col">
       <h1>Workouts</h1>
-      <div className="small muted">{phase.label}, week {phase.week} of the program. {phase.text}</div>
+      <div className="small muted">Week {phase.week}: {phase.label.toLowerCase()}. {phase.text}</div>
       <div className="list" data-tour="templates">
-        {templates.filter((t) => !t.archived).map((t) => (
+        {[...templates.filter((t) => !t.archived)].sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id)).map((t) => (
           <button key={t.id} className="item tappable" onClick={() => pick(t.id)} style={readiness?.offer?.templateId === t.id ? { borderColor: 'var(--accent)' } : undefined}>
-            <div className="grow"><div className="title">{t.name} <span className="small muted">· {t.minutes} min</span></div><div className="sub">{t.summary}</div></div>
+            <div className="grow"><div className="title">{t.name} <span className="small muted">· about {t.minutes} minutes</span></div><div className="sub">{t.summary}</div></div>
             <span className="chev">›</span>
           </button>
         ))}
       </div>
-      <p className="small muted">The one with the colored edge is today's recommendation. Picking a different one is allowed; the app will say what it thinks first.</p>
+      <p className="small muted">The one with the colored edge is the one the app picked for today. You can pick a different one. The app will tell you what it thinks first.</p>
 
       <div className="section-title"><h2>Every exercise</h2><span className="small muted">{exercises.filter((e) => !e.archived).length}</span></div>
       <input className="input" placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -78,7 +80,7 @@ export function WorkoutsPage() {
             {list.map((e) => (
               <Link key={e.id} className="item tappable" to={`/exercises/${e.id}`}>
                 <div className="grow"><div className="title">{e.name}</div><div className="sub">{e.develops}</div></div>
-                <span className="pill">{e.level}</span>
+                <span className="pill">{LEVEL_WORDS[e.level]}</span>
                 {statuses.get(e.id)?.formCheckedAt && <span className="pill green">checked</span>}
               </Link>
             ))}
@@ -86,17 +88,17 @@ export function WorkoutsPage() {
         </div>
       ))}
 
-      <div className="section-title"><h2>History</h2></div>
-      {history.length === 0 ? <div className="empty">No sessions yet.</div> : (
+      <div className="section-title"><h2>Workouts you have done</h2></div>
+      {history.length === 0 ? <div className="empty">No workouts yet. Your finished ones will show up here.</div> : (
         <div className="list">{history.map((s) => <Link key={s.id} className="item tappable" to={`/sessions/${s.id}`}><div className="grow"><div className="title">{s.templateName}</div><div className="sub">{fmtDate(s.day)} · {s.status === 'done' ? `${s.items.filter((i) => i.sets.some((x) => x.done)).length} exercises` : s.status}</div></div><span className="chev">›</span></Link>)}</div>
       )}
 
-      {confirm === 'red' && <Sheet title="Not today" onClose={() => setConfirm(null)}><p>Your check-in says something hurts, you feel sick, or you are dizzy. No workout today; the Easy day (two minutes of breathing) is the one thing to do, and it counts. Tell a grown-up how you feel; tomorrow is a new check-in.</p></Sheet>}
+      {confirm === 'red' && <Sheet title="Not today" onClose={() => setConfirm(null)}><p>You said something hurts, you feel sick, or you are dizzy. So no workout today. The Easy day (two minutes of breathing) is the one thing to do, and it counts. Tell a grown-up how you feel. Tomorrow you can answer the questions again.</p></Sheet>}
       {confirm && confirm !== 'red' && (
-        <Sheet title="Different from the recommendation" onClose={() => setConfirm(null)} footer={<><button className="btn" onClick={() => setConfirm(null)}>Go with the recommendation</button><button className="btn primary" onClick={() => { const id = confirm; setConfirm(null); startTemplate(id); }}>Do it anyway</button></>}>
-          <p>Today the app suggests <strong>{readiness?.offer?.name ?? 'the easy day'}</strong>. Reasons:</p>
+        <Sheet title="The app picked something else today" onClose={() => setConfirm(null)} footer={<><button className="btn" onClick={() => setConfirm(null)}>Do what the app picked</button><button className="btn primary" onClick={() => { const id = confirm; setConfirm(null); startTemplate(id); }}>Do it anyway</button></>}>
+          <p>Today the app picked <strong>{readiness?.offer?.name ?? 'the easy day'}</strong>. Here is why:</p>
           <ul className="why">{readiness?.reasons.map((r, i) => <li key={i}>{r}</li>)}{readiness?.blockedWhy.map((r, i) => <li key={'b' + i}>{r}</li>)}</ul>
-          <p className="small muted">If you go ahead, moves that work a part of the body the app wants to rest are still swapped out. Good form first, always.</p>
+          <p className="small muted">If you do it anyway, moves for a body part that needs a rest today will still be left out.</p>
         </Sheet>
       )}
     </div>

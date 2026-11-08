@@ -31,7 +31,7 @@ export function ProgressPage() {
     const ws = weekStartOf(day);
     return Array.from({ length: 8 }, (_, i) => addDays(ws, -7 * (7 - i)));
   }, [day]);
-  const perWeek = weeks.map((w) => workouts.filter((s) => s.day >= w && s.day <= addDays(w, 6)).length);
+  const perWeek = weeks.map((w) => sessions.filter((s) => s.day >= w && s.day <= addDays(w, 6)).length);
   const foundationsPerWeek = weeks.map((w) => done.filter((s) => s.kind === 'foundations' && s.day >= w && s.day <= addDays(w, 6)).length);
 
   // Key exercise trend.
@@ -49,26 +49,26 @@ export function ProgressPage() {
   const daysInMonth = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
   const lead = first.getDay(); // Sunday first
   const cells: Array<Day | null> = [...Array.from({ length: lead }, () => null), ...Array.from({ length: daysInMonth }, (_, i) => addDays(monthStart, i))];
-  const marks = (d: Day) => ({ w: workouts.some((s) => s.day === d), f: done.some((s) => s.day === d && s.kind === 'foundations'), s: logs.some((l) => l.day === d), j: journal.some((j) => j.day === d) });
+  const marks = (d: Day) => ({ w: sessions.some((s) => s.day === d), f: done.some((s) => s.day === d && s.kind === 'foundations'), s: logs.some((l) => l.day === d), j: journal.some((j) => j.day === d) });
   const phase = athlete ? programPhase(athlete.programStart, day) : undefined;
 
   return (
     <div className="col">
       <h1>Progress</h1>
-      <div className="small muted">Compared with your own earlier sessions only. {phase ? `${phase.label}, week ${phase.week}.` : ''}</div>
+      <div className="small muted">You only ever get compared with the old you, never with anyone else. {phase ? `Week ${phase.week}: ${phase.label.toLowerCase()}.` : ''}</div>
       <div className="kpi">
-        <div className="k"><div className="v">{workouts.length}</div><div className="l">Sessions</div></div>
+        <div className="k"><div className="v">{workouts.length}</div><div className="l">Workouts</div></div>
         <div className="k"><div className="v">{done.filter((s) => s.kind === 'foundations').length}</div><div className="l">Daily 5s</div></div>
-        <div className="k"><div className="v">{bestBalance ? `${bestBalance}s` : '–'}</div><div className="l">Best stork</div></div>
-        <div className="k"><div className="v">{bestPlank ? `${bestPlank}s` : '–'}</div><div className="l">Best plank</div></div>
-        <div className="k"><div className="v">{recoveryDays}</div><div className="l">Smart rest days</div></div>
+        <div className="k"><div className="v">{bestBalance ? `${bestBalance}s` : '–'}</div><div className="l">Longest stork balance</div></div>
+        <div className="k"><div className="v">{bestPlank ? `${bestPlank}s` : '–'}</div><div className="l">Longest plank</div></div>
+        <div className="k"><div className="v">{recoveryDays}</div><div className="l">Rest days you chose</div></div>
         <div className="k"><div className="v">{achievements.length}</div><div className="l">Badges</div></div>
       </div>
 
       <div className="card">
-        <h3>Sessions per week (last 8 weeks)</h3>
+        <h3>Workouts each week (the last 8 weeks)</h3>
         <Bars values={perWeek} labels={weeks.map((w) => fmtDate(w).replace(/^\w+,? /, ''))} max={4} />
-        <div className="small muted">Daily 5 per week: {foundationsPerWeek.join(' · ')}</div>
+        <div className="small muted">Daily 5s each week: {foundationsPerWeek.join(' · ')}</div>
       </div>
 
       {tracked.length > 0 && (
@@ -80,7 +80,7 @@ export function ProgressPage() {
       )}
 
       <div className="card">
-        <div className="row between"><h3>{first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</h3><span className="tiny muted">● session · ● sport · ● note · ● foundations</span></div>
+        <div className="row between"><h3>{first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</h3><span className="tiny muted">● workout · ● dance or play · ● note · ● Daily 5ations</span></div>
         <div className="cal mt">
           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((h, i) => <div key={i} className="h">{h}</div>)}
           {cells.map((d, i) => d ? (() => { const m = marks(d); const has = m.w || m.f || m.s || m.j; return <button key={i} className={`d ${has ? 'has' : ''} ${d === day ? 'today' : ''}`} onClick={() => setPick(d)}><span>{Number(d.slice(8))}</span><span className="marks">{m.w && <i className="w" />}{m.s && <i className="s" />}{m.j && <i className="j" />}{m.f && <i className="f" />}</span></button>; })() : <div key={i} />)}
@@ -92,7 +92,7 @@ export function ProgressPage() {
         <div className="list mt">
           {BADGES.map((b) => { const a = achievements.find((x) => x.key === b.key); return <div key={b.key} className={`badge ${a ? '' : 'locked'}`}><div className="medal">{a ? '★' : '·'}</div><div className="grow"><div><strong>{b.title}</strong></div><div className="small muted">{b.text}{a ? ` · ${fmtDate(a.earnedAt.slice(0, 10))}` : ''}</div></div></div>; })}
         </div>
-        <p className="small muted mt">Badges are earned, never lost. Missing a day changes nothing here.</p>
+        <p className="small muted mt">Once you earn a badge, it is yours forever. Missing a day changes nothing here.</p>
       </div>
 
       {pick && (

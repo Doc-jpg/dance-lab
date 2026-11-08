@@ -9,8 +9,8 @@
  *   RED    pain, illness, dizziness: no training, tell a grown-up. The Easy day (two minutes of
  *          breathing) is still offered, because there is always something and it keeps the habit.
  *   ORANGE a recital, competition or performance day, or a lot of activity already: the five-minute
- *          stretch is the whole workout.
- *   YELLOW a dance class today, or poor sleep/energy, or sore: the Easy workout (gentle stretches,
+ *          stretch is the whole session.
+ *   YELLOW a dance class today, or poor sleep/energy, or sore: the Easy session (gentle stretches,
  *          a little balance, breathing).
  *   GREEN  fresh and recovered: the planned session (Stretch and reach, Strong and steady or Happy
  *          feet, in turn).
@@ -85,14 +85,14 @@ export function assessReadiness(input: ReadinessInput): Readiness {
     if (isHeavyLegs(l)) {
       blocked.add('legs');
       blocked.add('jump');
-      blockedWhy.push(l.performance ? 'Performance day: no extra leg work or jumping.' : l.heavyJumping ? 'Lots of jumping today, so no extra jumps or hard leg work.' : 'A long, hard class today, so no extra jumps or hard leg work.');
+      blockedWhy.push(l.performance ? 'Recital or show day: no extra leg work or jumping.' : l.heavyJumping ? 'Lots of jumping today, so no extra jumps or hard leg work.' : 'A long, hard class today, so no extra jumps or hard leg work.');
     }
   }
   for (const l of yLogs) {
     if (l.performance && !blocked.has('legs')) {
       blocked.add('legs');
       blocked.add('jump');
-      blockedWhy.push('Performance yesterday: legs get another easy day.');
+      blockedWhy.push('Recital or show yesterday, so your legs get another easy day.');
     } else if (l.heavyJumping && !blocked.has('jump')) {
       blocked.add('jump');
       blockedWhy.push('Lots of jumping yesterday, so no jumping today.');
@@ -106,13 +106,13 @@ export function assessReadiness(input: ReadinessInput): Readiness {
 
   // RED: symptoms. Nothing else matters.
   if (checkIn && (checkIn.pain || checkIn.sick || checkIn.dizzy)) {
-    if (checkIn.pain) { reasons.push('You said something hurts. Pain is a stop sign, not something to push through.'); alerts.push('Reported pain at check-in.'); }
+    if (checkIn.pain) { reasons.push('You said something hurts. Pain means stop. You never keep going when something hurts.'); alerts.push('Reported pain at check-in.'); }
     if (checkIn.sick) { reasons.push('You feel sick. Rest, drink water, and tell a grown-up.'); alerts.push('Reported feeling sick at check-in.'); }
-    if (checkIn.dizzy) { reasons.push('You feel dizzy. Sit down, drink some water, and tell a grown-up now.'); alerts.push('Reported dizziness at check-in.'); }
+    if (checkIn.dizzy) { reasons.push('You feel dizzy. Sit down, drink some water, and tell a grown-up right now.'); alerts.push('Reported dizziness at check-in.'); }
     return {
       color: 'red',
       headline: 'Easy day: breathe, and tell a grown-up',
-      reasons: [...reasons, 'Tell a parent or another grown-up how you feel. If it is more than tired muscles, a doctor is the right call. The app does not decide that.', 'Two minutes of slow breathing still counts as your day. Nothing else today.'],
+      reasons: [...reasons, 'Tell a parent or another grown-up how you feel. If it is more than tired muscles, a grown-up decides about the doctor, not the app.', 'Two minutes of slow breathing still counts as your day. Nothing else today.'],
       blocked: [...blocked],
       blockedWhy,
       offer: { templateId: 'easy', name: 'Easy day', kind: 'recovery', reduced: true },
@@ -140,22 +140,22 @@ export function assessReadiness(input: ReadinessInput): Readiness {
   let color: ReadinessColor = 'green';
   const performance = todayLogs.some((l) => l.performance);
   const twoThings = todayLogs.length >= 2 && loadToday >= 4;
-  if (performance) { color = 'orange'; reasons.push('Performance day. That was the workout; a five-minute stretch is all that is left.'); alerts.push('Performance day logged.'); }
-  else if (loadToday >= 6) { color = 'orange'; reasons.push('A lot of moving already today (long and hard). Nothing extra is needed.'); }
-  else if (twoThings) { color = 'orange'; reasons.push('Two activities today add up to a big day.'); }
-  else if (checkIn?.energy === 1) { color = 'orange'; reasons.push('Energy is wiped out. Five easy minutes and rest is the smart move.'); }
-  else if (checkIn?.soreness === 'alot') { color = 'orange'; reasons.push('Very sore. Sore muscles need a gentle stretch and a good sleep, not more work.'); }
+  if (performance) { color = 'orange'; reasons.push('Recital or show day! That was your workout. A five-minute stretch is all that is left.'); alerts.push('Performance day logged.'); }
+  else if (loadToday >= 6) { color = 'orange'; reasons.push('You already moved a lot today (a long, hard one). You do not need anything extra.'); }
+  else if (twoThings) { color = 'orange'; reasons.push('Two things today add up to a big day.'); }
+  else if (checkIn?.energy === 1) { color = 'orange'; reasons.push('You have no energy today. Five easy minutes and then rest is the smart choice.'); }
+  else if (checkIn?.soreness === 'alot') { color = 'orange'; reasons.push('You are very sore. Sore muscles need a gentle stretch and a good sleep, not more work.'); }
   else if (ratio >= 1.5) { color = 'orange'; reasons.push('This week has been a lot busier than usual. A stretch today keeps the rest of the week good.'); alerts.push('Activity load this week is more than 1.5 times the four-week average.'); }
   else {
-    if (ratio >= 1.3) { color = 'yellow'; reasons.push('A busier week than usual, so lighter today.'); }
-    if (loadToday >= 3) { color = 'yellow'; reasons.push(todayLogs.some((l) => l.sport === 'dance') ? 'Dance class today, so a gentle session.' : 'Already active today, so a lighter session.'); }
-    if (loadYesterday >= 6 && color === 'green') { color = 'yellow'; reasons.push('Yesterday was a big day; today stays lighter.'); }
-    if (checkIn?.energy === 2) { color = 'yellow'; reasons.push('Energy is low.'); }
-    if (checkIn && checkIn.sleep <= 2) { color = 'yellow'; reasons.push('Short or rough sleep. Lighter today; tonight matters.'); }
-    if (checkIn?.soreness === 'some') { color = 'yellow'; reasons.push('A little sore, so easier work today.'); }
+    if (ratio >= 1.3) { color = 'yellow'; reasons.push('This week has been busier than usual, so today is easier.'); }
+    if (loadToday >= 3) { color = 'yellow'; reasons.push(todayLogs.some((l) => l.sport === 'dance') ? 'You had dance today, so today is a gentle one.' : 'You already did something today, so today is a gentle one.'); }
+    if (loadYesterday >= 6 && color === 'green') { color = 'yellow'; reasons.push('Yesterday was a big day, so today stays easy.'); }
+    if (checkIn?.energy === 2) { color = 'yellow'; reasons.push('Your energy is low today.'); }
+    if (checkIn && checkIn.sleep <= 2) { color = 'yellow'; reasons.push('You did not sleep well, so today is easier. Tonight, get a good sleep.'); }
+    if (checkIn?.soreness === 'some') { color = 'yellow'; reasons.push('You are a little sore, so today is easier.'); }
     if (noRestDay) { color = 'yellow'; reasons.push('Six busy days in a row. A real rest day this week is part of the plan.'); alerts.push('No rest day in the last six days.'); }
   }
-  if (color === 'green') reasons.push('Fresh, slept okay, nothing big today or yesterday.');
+  if (color === 'green') reasons.push('You feel fresh, slept okay, and nothing big happened today or yesterday.');
 
   // What to offer.
   let offer: Readiness['offer'];
@@ -170,20 +170,20 @@ export function assessReadiness(input: ReadinessInput): Readiness {
     const fallback = input.fallback ?? { kind: 'flex', templateId: 'flex', name: 'Stretch and reach' };
     const demanding = DEMANDING_KINDS.includes(planned.kind);
     if (demanding && hoursSinceStrength < 48) {
-      reasons.push(`Strong and steady was ${hoursSinceStrength === 0 ? 'today' : 'yesterday'}; muscles get a day between strength days, so today is ${fallback.name}.`);
+      reasons.push(`You did Strong and steady ${hoursSinceStrength === 0 ? 'today' : 'yesterday'}. Muscles get a day off between strong days, so today is ${fallback.name}.`);
       offer = { ...fallback, reduced: false };
     } else if (demanding && strengthThisWeek >= settings.strengthDaysPerWeek) {
-      reasons.push(`Already ${strengthThisWeek} strength days this week (the plan is ${settings.strengthDaysPerWeek}), so today is ${fallback.name}.`);
+      reasons.push(`You already did Strong and steady ${strengthThisWeek} times this week (the plan is ${settings.strengthDaysPerWeek}), so today is ${fallback.name}.`);
       offer = { ...fallback, reduced: false };
     } else if (demanding && blocked.has('legs')) {
-      reasons.push(`Legs already worked hard, so it is ${fallback.name} instead of Strong and steady.`);
+      reasons.push(`Your legs already worked hard, so today is ${fallback.name} instead of Strong and steady.`);
       offer = { ...fallback, reduced: false };
     } else {
       offer = { templateId: planned.templateId, name: planned.name, kind: planned.kind, reduced: false };
     }
   }
 
-  const headline = color === 'green' ? 'Fresh and ready' : color === 'yellow' ? 'Easy workout today' : 'Big day already: five-minute stretch';
+  const headline = color === 'green' ? 'Fresh and ready' : color === 'yellow' ? 'Easy workout today' : 'Big day already: just the five-minute stretch';
   return { color, headline, reasons, blocked: [...blocked], blockedWhy, offer, foundations, loadToday, loadYesterday, alerts };
 }
 

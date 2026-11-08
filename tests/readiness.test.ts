@@ -24,7 +24,7 @@ describe('readiness engine (dance)', () => {
     expect(r.color).toBe('yellow');
     expect(r.offer.templateId).toBe('light');
     expect(r.offer.reduced).toBe(true);
-    expect(r.reasons.join(' ')).toMatch(/Dance class/);
+    expect(r.reasons.join(' ')).toMatch(/had dance today/);
   });
 
   it('a recital or competition day is orange: the five-minute stretch, and the parent sees it', () => {
@@ -65,7 +65,7 @@ describe('readiness engine (dance)', () => {
     const r = assessReadiness({ day: DAY, checkIn: fine, logs: [], sessions: [done(addDays(DAY, -1), 'strength')], settings, planned: strength, fallback: flex });
     expect(r.color).toBe('green');
     expect(r.offer.templateId).toBe('flex');
-    expect(r.reasons.join(' ')).toMatch(/day between/);
+    expect(r.reasons.join(' ')).toMatch(/day off between/);
     const r2 = assessReadiness({ day: DAY, checkIn: fine, logs: [], sessions: [done(addDays(DAY, -2), 'strength')], settings, planned: strength, fallback: flex });
     expect(r2.offer.templateId).toBe('strength');
   });

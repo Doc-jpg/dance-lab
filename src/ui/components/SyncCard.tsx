@@ -30,7 +30,7 @@ export function SyncCard({ full }: { full: boolean }) {
     return (
       <div className="card">
         <h3>{parent}'s phone</h3>
-        <div className="small mt">{s?.enabled ? `Your check-ins, workouts and shared notes go to ${parent}'s phone on their own, and ${parent}'s approvals come here. ${status}` : status}</div>
+        <div className="small mt">{s?.enabled ? `Your answers, workouts and shared notes go to ${parent}'s phone by themselves. ${parent}'s settings come here. ${status}` : status}</div>
       </div>
     );
   }

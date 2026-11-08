@@ -51,31 +51,31 @@ export function HabitsPage() {
     <div className="col">
       <h1>Habits</h1>
       <div className="card row between">
-        <div className="grow"><strong>Daily 5</strong><div className="small muted">Balloon breathing, cat and cow, starfish, ankle rocks, butterfly, stork. About 5 minutes. Movement, not a workout. Skip it when sick, hurt or wiped out.</div></div>
+        <div className="grow"><strong>Daily 5</strong><div className="small muted">Balloon breathing, cat and cow, starfish, ankle rocks, butterfly, stork. About 5 minutes. It is moving, not a workout, so it is fine on top of anything else. Skip it when you are sick, hurt or wiped out.</div></div>
         {foundationsDone ? <span className="pill green">Done</span> : readiness?.foundations === 'no' ? <span className="pill red">Not today</span> : <button className="btn primary" onClick={doFoundations}>Do it</button>}
       </div>
 
-      <h3>Today's habits</h3>
+      <h3>Good things you did today (tap them)</h3>
       <div className="list">
         {HABITS.map((h) => <button key={h.key} className={`habit-row ${isOn(h.key) ? 'on' : ''}`} onClick={() => toggle(h.key)}><div className="box">{isOn(h.key) ? '✓' : ''}</div><div className="grow"><div><strong>{h.title}</strong></div><div className="small muted">{h.text}</div></div></button>)}
       </div>
-      <p className="small muted">Checking these is for you, not for a score. Nothing bad happens on a day you miss.</p>
+      <p className="small muted">Tapping these is just for you. It is not a score. Nothing bad happens on a day you miss.</p>
 
-      <h3>This week's missions</h3>
+      <h3>This week's missions (little challenges)</h3>
       <div className="list">
-        {thisWeek.length === 0 && <div className="small muted">Missions appear after your first check-in of the week.</div>}
+        {thisWeek.length === 0 && <div className="small muted">Missions show up after you answer the questions for the first time this week.</div>}
         {thisWeek.map((m) => <div key={m.id} className="card mission"><div className="row between"><strong>{m.title}</strong>{m.doneAt ? <span className="pill green">Done</span> : <span className="small muted">{m.progress} of {m.target}</span>}</div><div className="small muted">{m.text}</div><div className="bar"><div style={{ width: `${Math.round((100 * m.progress) / m.target)}%` }} /></div></div>)}
       </div>
-      <p className="small muted">Three new ones every Sunday. Unfinished missions just go away; nothing is lost.</p>
+      <p className="small muted">You get three new ones every Sunday. Missions you did not finish just go away. Nothing is lost.</p>
 
       <div className="card">
-        <h3>Food, water, sleep: the short version</h3>
+        <h3>Food, water and sleep: the short version</h3>
         <ul className="step-list small">
-          <li><strong>Water first.</strong> Plain water is perfect. Sports drinks only after more than an hour of hard work or in real heat. Energy drinks, never.</li>
-          <li><strong>Real food.</strong> Eggs, milk, yogurt, chicken, beans, peanut butter, rice, pasta, potatoes, fruit, vegetables. Growing dancers eat; the app never suggests cutting anything out.</li>
+          <li><strong>Water first.</strong> Plain water is perfect. Sports drinks only after more than an hour of hard work or when it is really hot. Energy drinks, never.</li>
+          <li><strong>Real food.</strong> Eggs, milk, yogurt, chicken, beans, peanut butter, rice, pasta, potatoes, fruit, vegetables. Growing dancers eat. This app never tells you to eat less of anything.</li>
           <li><strong>Food is fuel for dancing.</strong> A snack before class and a real dinner after.</li>
-          <li><strong>Sleep is when you get stronger and stretchier.</strong> 9 to 11 hours at this age. Short sleep shows up as a yellow day.</li>
-          <li><strong>No dieting, no weigh-ins, no mirror talk.</strong> This app does not track weight, shape or appearance, on purpose.</li>
+          <li><strong>Sleep is when you get stronger and stretchier.</strong> 9 to 11 hours a night at your age. If you did not sleep much, the app gives you a yellow (easier) day.</li>
+          <li><strong>No diets, no weighing, no mirror talk.</strong> This app never asks about your weight or how you look. That is on purpose.</li>
         </ul>
       </div>
     </div>

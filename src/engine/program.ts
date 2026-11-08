@@ -1,7 +1,7 @@
 /**
  * Program and progression.
  *
- * Turns a template into today's session: honors the readiness blocks, anything a parent turned off,
+ * Turns a template into today's workout: honors the readiness blocks, anything a parent turned off,
  * the phase of the program, and what the last two sessions of that exercise felt like. One change
  * at a time (reps or seconds, then sets), never past an exercise's cap, bodyweight only, and nothing
  * added in the learn phase or in growth-spurt mode.
@@ -22,12 +22,12 @@ export interface PhaseInfo {
 /** Weeks 1 to 2 learn, 3 to 4 build, 5 to 6 refine, then four-week blocks of three build weeks and a review week. */
 export function programPhase(programStart: Day, day: Day): PhaseInfo {
   const week = Math.max(1, Math.floor(daysBetween(programStart, day) / 7) + 1);
-  if (week <= 2) return { phase: 'learn', week, label: 'Learning the moves', text: 'Weeks 1 and 2: learn each exercise, get the form right, build the habit. No extra reps yet, on purpose.' };
-  if (week <= 4) return { phase: 'build', week, label: 'Building', text: 'Weeks 3 and 4: a few more reps or a set where the last two sessions felt easy and recovery was good.' };
-  if (week <= 6) return { phase: 'refine', week, label: 'Refining', text: 'Weeks 5 and 6: movement quality, a harder version offered where the easier one is solid, and a look back at the basics.' };
+  if (week <= 2) return { phase: 'learn', week, label: 'Learning the moves', text: 'For the first two weeks you just learn each move and do it the right way. The app will not add more yet, on purpose.' };
+  if (week <= 4) return { phase: 'build', week, label: 'Building', text: 'Weeks 3 and 4: a little more where the last two times felt easy.' };
+  if (week <= 6) return { phase: 'refine', week, label: 'Getting good at it', text: 'Weeks 5 and 6: doing each move really nicely. A harder version shows up when the easy one looks solid.' };
   const inBlock = (week - 7) % 4; // 0..3
-  if (inBlock === 3) return { phase: 'review', week, label: 'Review week', text: 'A lighter week to review form and recovery before the next block. No additions this week.' };
-  return { phase: 'develop', week, label: `Development block, week ${inBlock + 1} of 4`, text: 'Steady development: small additions only where form and recovery support them.' };
+  if (inBlock === 3) return { phase: 'review', week, label: 'Easy week', text: 'A lighter week to rest and do the moves nicely. Nothing gets added this week.' };
+  return { phase: 'develop', week, label: `Getting stronger, week ${inBlock + 1} of 4`, text: 'A little more, only where it felt easy and you did it nicely.' };
 }
 
 /** The three green-day sessions take turns: Stretch and reach, Strong and steady, Happy feet, then round again. */
@@ -124,7 +124,7 @@ export function decideDose(exercise: Exercise, templateDose: Dose, ctx: BuildCon
   const hist = historyFor(exercise.id, ctx.sessions, ctx.day);
   const last = hist[0];
   let dose: Dose = { ...templateDose };
-  if (reduced) return { dose: { ...dose, sets: 1 }, reason: 'Lighter day: one set, easy pace.' };
+  if (reduced) return { dose: { ...dose, sets: 1 }, reason: 'Gentle today: each move just once, nice and slow.' };
   if (last) dose = { ...dose, sets: last.item.planned.sets, reps: last.item.planned.reps ?? dose.reps, seconds: last.item.planned.seconds ?? dose.seconds };
   const cap = exercise.maxDose ?? { sets: 3, reps: 15, seconds: 60 };
   // Safety first: never above the cap, never below the template.
@@ -132,9 +132,9 @@ export function decideDose(exercise: Exercise, templateDose: Dose, ctx: BuildCon
   if (dose.reps !== undefined) dose.reps = Math.min(Math.max(dose.reps, templateDose.reps ?? dose.reps), cap.reps ?? 15);
   if (dose.seconds !== undefined) dose.seconds = Math.min(Math.max(dose.seconds, templateDose.seconds ?? dose.seconds), cap.seconds ?? 60);
 
-  if (ctx.athlete.growthSpurtMode) return { dose, reason: 'Growth-spurt mode: holding steady while coordination catches up.' };
-  if (phase.phase === 'learn') return { dose, reason: 'Learning phase: same dose, better form.' };
-  if (phase.phase === 'review') return { dose, reason: 'Review week: no additions.' };
+  if (ctx.athlete.growthSpurtMode) return { dose, reason: 'Growing fast right now, so staying the same for a bit.' };
+  if (phase.phase === 'learn') return { dose, reason: 'Learning weeks: same amount, just do it nicely.' };
+  if (phase.phase === 'review') return { dose, reason: 'Easy week: nothing added.' };
   if (hist.length < 2) return { dose };
   const [h1, h2] = hist;
   if (feltHard(h1)) {
@@ -143,22 +143,22 @@ export function decideDose(exercise: Exercise, templateDose: Dose, ctx: BuildCon
     if (eased.reps !== undefined && templateDose.reps !== undefined && eased.reps > templateDose.reps) eased.reps = Math.max(templateDose.reps, eased.reps - 2);
     else if (eased.seconds !== undefined && templateDose.seconds !== undefined && eased.seconds > templateDose.seconds) eased.seconds = Math.max(templateDose.seconds, eased.seconds - 5);
     const changed = JSON.stringify(eased) !== JSON.stringify(dose);
-    return { dose: eased, reason: changed ? 'Last time felt hard, so a little less today.' : 'Last time felt hard; holding here.' };
+    return { dose: eased, reason: changed ? 'Last time felt hard, so a little less today.' : 'Last time felt hard, so staying here.' };
   }
-  if (!(doneAllPlanned(h1) && doneAllPlanned(h2) && feltEasy(h1) && feltEasy(h2))) return { dose, reason: 'Holding steady until two sessions in a row feel easy.' };
+  if (!(doneAllPlanned(h1) && doneAllPlanned(h2) && feltEasy(h1) && feltEasy(h2))) return { dose, reason: 'Staying the same until it feels easy two times in a row.' };
 
   const out: DoseDecision = { dose: { ...dose } };
   if (phase.phase === 'refine' && exercise.harder) out.tryHarder = exercise.harder;
   if (dose.reps !== undefined) {
     const maxReps = cap.reps ?? 15;
-    if (dose.reps < maxReps) { out.dose.reps = Math.min(maxReps, dose.reps + 2); out.reason = 'Last two sessions felt easy: two more reps.'; return out; }
-    if (dose.sets < cap.sets) { out.dose.sets = dose.sets + 1; out.reason = 'Reps are at the top of the range: one more set.'; return out; }
+    if (dose.reps < maxReps) { out.dose.reps = Math.min(maxReps, dose.reps + 2); out.reason = 'Easy two times in a row: two more.'; return out; }
+    if (dose.sets < cap.sets) { out.dose.sets = dose.sets + 1; out.reason = 'You can do the most of these now, so one more round.'; return out; }
   } else if (dose.seconds !== undefined) {
     const maxSec = cap.seconds ?? 60;
-    if (dose.seconds < maxSec) { out.dose.seconds = Math.min(maxSec, dose.seconds + 5); out.reason = 'Last two felt easy: five more seconds.'; return out; }
-    if (dose.sets < cap.sets) { out.dose.sets = dose.sets + 1; out.reason = 'Time is at the top of the range: one more set.'; return out; }
+    if (dose.seconds < maxSec) { out.dose.seconds = Math.min(maxSec, dose.seconds + 5); out.reason = 'Easy two times in a row: five more seconds.'; return out; }
+    if (dose.sets < cap.sets) { out.dose.sets = dose.sets + 1; out.reason = 'You can hold the longest time now, so one more round.'; return out; }
   }
-  out.reason = exercise.harder ? 'At the top of this exercise. A harder version is there when you want it.' : 'At the top of this exercise. Keep the form perfect.';
+  out.reason = exercise.harder ? 'This is the most of this move. A harder one is there when you want it.' : 'This is the most of this move. Keep doing it nicely.';
   if (exercise.harder) out.tryHarder = exercise.harder;
   return out;
 }
@@ -182,11 +182,11 @@ function pickSubstitute(exercise: Exercise, ctx: BuildContext, blocked: LoadTag[
 
 export interface BuiltSession {
   session: Session;
-  /** Items that were swapped or dropped and why, for the "Why this session" card. */
+  /** Items that were swapped or dropped and why, for the "Why this workout" card. */
   changes: string[];
 }
 
-/** Build today's session from a template and the readiness verdict. */
+/** Build today's workout from a template and the readiness verdict. */
 export function buildSession(template: WorkoutTemplate, readiness: Readiness, ctx: BuildContext): BuiltSession {
   const phase = programPhase(ctx.athlete.programStart, ctx.day);
   const reduced = readiness.offer.reduced;
@@ -196,18 +196,18 @@ export function buildSession(template: WorkoutTemplate, readiness: Readiness, ct
     let ex = ctx.exercises.get(ti.exerciseId);
     if (!ex || ex.archived) continue;
     const status = ctx.statuses.get(ex.id);
-    if (status?.disabled) { changes.push(`${ex.name} is turned off by a parent, so it is out.`); continue; }
+    if (status?.disabled) { changes.push(`${ex.name} is out because a parent turned it off.`); continue; }
     let swappedFrom: Exercise | undefined;
     const needsCheck = (ti.requiresFormCheck || ex.needsFormCheck) && !status?.formCheckedAt;
     const tag = blockedBy(ex, readiness.blocked);
     if (needsCheck || tag) {
       const sub = pickSubstitute(ex, ctx, readiness.blocked, true);
       const why = needsCheck ? `${ex.name} waits for a grown-up to watch it once` : `${ex.name} works the ${tag === 'jump' ? 'jumping legs' : TAG_WORDS[tag as LoadTag]}, which rest today`;
-      if (sub) { changes.push(`${why}, so ${sub.name} is in its place.`); swappedFrom = ex; ex = sub; }
-      else if (ti.optional) { changes.push(`${why}; it was optional, so it is out.`); continue; }
-      else { changes.push(`${why}; nothing safe fits, so it is out today.`); continue; }
+      if (sub) { changes.push(`${why}, so you get ${sub.name} instead.`); swappedFrom = ex; ex = sub; }
+      else if (ti.optional) { changes.push(`${why}, so it is out today.`); continue; }
+      else { changes.push(`${why}, so it is out today.`); continue; }
     }
-    if (reduced && ex.loadTags.includes('jump')) { changes.push(`${ex.name} is out on a lighter day.`); continue; }
+    if (reduced && ex.loadTags.includes('jump')) { changes.push(`${ex.name} is out today because it is an easy day.`); continue; }
     const base = swappedFrom ? ex.defaultDose : ti.dose;
     const decision = decideDose(ex, base, ctx, phase, reduced);
     items.push({
@@ -251,8 +251,21 @@ export function estimateMinutes(items: SessionItem[]): number {
   return Math.max(3, Math.round(sec / 60));
 }
 
-export function doseText(d: Dose): string {
+/** Stretches, strong-middle holds and balances are held; warm-ups, breathing, walks and feet work are done "for" a time. */
+export function isHold(exerciseId: string): boolean {
+  return /^(fx|st|bl)-/.test(exerciseId) && exerciseId !== 'bl-landing' && exerciseId !== 'bl-heeltoe' && exerciseId !== 'bl-starfish' && exerciseId !== 'st-bearcrawl' && exerciseId !== 'st-crabwalk';
+}
+
+function timeWords(seconds: number): string {
+  if (seconds % 60 === 0) return seconds === 60 ? '1 minute' : `${seconds / 60} minutes`;
+  return `${seconds} seconds`;
+}
+
+/** How much, in words a nine-year-old reads without help: "hold 30 seconds, each side, 2 rounds". */
+export function doseText(d: Dose, hold = true): string {
   const reps = d.reps !== undefined ? (d.repsMax && d.repsMax !== d.reps ? `${d.reps} to ${d.repsMax}` : `${d.reps}`) : undefined;
-  const unit = d.seconds !== undefined ? `${d.seconds} sec` : `${reps} reps`;
-  return `${d.sets} × ${unit}${d.perSide ? ' per side' : ''}`;
+  const unit = d.seconds !== undefined ? (hold ? `hold ${timeWords(d.seconds)}` : `${timeWords(d.seconds)}`) : `${reps} times`;
+  const side = d.perSide ? ', each side' : '';
+  const rounds = d.sets > 1 ? `, ${d.sets} rounds` : '';
+  return `${unit}${side}${rounds}`;
 }

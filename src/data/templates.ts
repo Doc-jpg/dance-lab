@@ -38,7 +38,7 @@ export const LIBRARY_TEMPLATES: WorkoutTemplate[] = [
     name: 'Strong and steady',
     kind: 'strength',
     minutes: 12,
-    summary: 'Squats, split squats, bridges, wall push-ups, plank, dead bugs, superman, a bear crawl, then a quick stretch. Nothing heavier than you. About 12 minutes.',
+    summary: 'Squats, split squats, bridges, wall push-ups, plank, dead bugs, superman, a bear crawl, then a quick stretch. No weights, just your own body. About 12 minutes.',
     items: [
       { exerciseId: 'wu-march', dose: { sets: 1, seconds: 60 } },
       { exerciseId: 'wu-skip', dose: { sets: 1, seconds: 45 } },

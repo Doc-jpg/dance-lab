@@ -25,11 +25,12 @@ export function JournalPage() {
     setIsPrivate(false);
     toast.show(isPrivate ? 'Saved. Private: only you see it.' : 'Saved');
   };
-  const prompts = ['What felt easier than last time?', 'What was hard today, and why do you think?', 'Something your body told you today.', 'One thing you are proud of this week.'];
+  const prompts = ['What felt easier than last time?', 'What was hard today? Why do you think so?', 'What did your body tell you today?', 'What is one thing you are proud of this week?'];
   const prompt = prompts[Number(day.slice(8)) % prompts.length];
   return (
     <div className="col">
       <h1>Journal</h1>
+      <div className="small muted">A place to write a line or two about how things felt. Nobody grades it.</div>
       <div className="card">
         <div className="small muted">{prompt}</div>
         <textarea className="input mt" value={text} onChange={(e) => setText(e.target.value)} placeholder='"Pike stretch reached further today." "My legs were really tired after dance."' />
@@ -39,7 +40,7 @@ export function JournalPage() {
         </div>
         {mode === 'parent' && <div className="small muted mt">Parent view: private notes are not shown here.</div>}
       </div>
-      {entries.length === 0 ? <div className="empty">No notes yet. A line or two after a workout is plenty.</div> : (
+      {entries.length === 0 ? <div className="empty">No notes yet. One or two lines after a workout is plenty.</div> : (
         <div className="list">
           {entries.map((j) => {
             const s = j.sessionId ? sessions.find((x) => x.id === j.sessionId) : undefined;
