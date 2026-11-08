@@ -46,7 +46,7 @@ export const BADGES: BadgeDef[] = [
   { key: 'feet-10', title: 'Strong ankles', text: 'Ten Happy feet workouts. Relevés are getting easy.', test: (s) => done(s, 'feet').length >= 10 },
   { key: 'journal-5', title: 'Thinker', text: 'Five journal notes. Noticing how things feel is how you get better at them.', test: (s) => s.journal.length >= 5 },
   { key: 'three-week', title: 'Three in a week', text: 'Three workouts in one week.', test: (s) => { for (let i = 0; i < 28; i++) { const end = addDays(s.day, -i); const start = addDays(end, -6); if (workouts(s).filter((x) => x.day >= start && x.day <= end).length >= 3) return true; } return false; } },
-  { key: 'habits-10', title: 'Habit builder', text: 'Ten healthy habits checked off.', test: (s) => s.habits.filter((h) => h.done).length >= 10 }
+  { key: 'habits-10', title: 'Habit builder', text: 'Ten healthy habits checked off.', test: (s) => s.habits.filter((h) => h.done && !h.habit.startsWith('qc-')).length >= 10 }
 ];
 
 /** Badges newly earned given current state; the caller saves them. */

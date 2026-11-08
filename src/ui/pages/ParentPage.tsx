@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { useAthlete, useCheckIns, useExercises, useFlags, useMeta, useSessions, useSettings, useSportsLogs, useStatuses, useToday, useClips, fmtDate, timeAgo } from '../hooks';
+import { useAthlete, useCheckIns, useExercises, useFlags, useMeta, useSessions, useSettings, useSportsLogs, useStatuses, useToday, useHabits, useClips, fmtDate, timeAgo } from '../hooks';
 import { useMode } from '../mode';
 import { db, saveSettings, setExerciseStatus, setParentPin, updateAthlete, clearAll } from '../../db/db';
 import { loadDemo, removeDemo } from '../../data/demo';
@@ -34,6 +34,7 @@ export function ParentPage() {
   const [resetOpen, setResetOpen] = useState(false);
   const demoLoaded = useMeta('demoLoaded') === true;
   const deviceRole = useMeta('deviceRole');
+  const habits = useHabits();
   if (mode !== 'parent') return <Navigate to="/settings" replace />;
   const name = athlete?.firstName ?? 'the dancer';
   if (!athlete) return <div className="col"><div className="row between"><h1>Parent view</h1><Link className="btn sm" to="/settings">Back</Link></div><div className="card"><p className="small">Waiting for the dancer's device to sync its first records.</p></div><SyncCard full /></div>;
@@ -84,6 +85,7 @@ export function ParentPage() {
                       {ls.map((l) => <div key={l.id}>{l.label || l.sport}{l.performance ? ' (performance)' : ''}{l.heavyJumping ? ', lots of jumping' : ''} · {l.duration}, {l.intensity}</div>)}
                       {ss.map((s) => <div key={s.id}><Link to={`/sessions/${s.id}`}>{s.templateName}</Link> · {s.status}{s.overallDifficulty ? `, felt ${['', 'easy', 'pretty easy', 'okay', 'hard', 'very hard'][s.overallDifficulty]}` : ''}{s.note ? ` · "${s.note}"` : ''}</div>)}
                       {load > 0 && <div className="tiny muted">activity load {load}</div>}
+                      {(() => { const q = habits.filter((h) => h.day === d && h.done && h.habit.startsWith('qc-')); if (!q.length) return null; const w: Record<string, string> = { 'qc-dogs-am': 'dogs fed (morning)', 'qc-dogs-pm': 'dogs fed (dinner)', 'qc-teeth-am': 'teeth (morning)', 'qc-teeth-pm': 'teeth (night)', 'qc-ready': 'ready for the day' }; const names = q.map((h) => w[h.habit]).filter(Boolean); return names.length ? <div className="tiny muted">quick check: {names.join(', ')}</div> : null; })()}
                     </div>
                   </div>
                 );

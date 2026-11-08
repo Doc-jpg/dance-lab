@@ -12,7 +12,8 @@ const HABITS: Array<{ key: HabitKey; title: string; text: string }> = [
   { key: 'meal', title: 'Real meals', text: 'Breakfast, lunch and dinner with something filling in each one. No skipping breakfast.' },
   { key: 'fruitveg', title: 'Fruit and vegetables', text: 'At least one of each today.' },
   { key: 'sleep', title: 'Good sleep plan', text: 'Screens off a bit early, bed at a time that gives 9 to 11 hours.' },
-  { key: 'play', title: 'Normal play', text: 'Bikes, tag, climbing, cartwheels in the yard, dancing in the kitchen. Counts for a lot.' }
+  { key: 'play', title: 'Normal play', text: 'Bikes, tag, climbing, cartwheels in the yard, dancing in the kitchen. Counts for a lot.' },
+  { key: 'dogs', title: 'Fed Bear and Teddy', text: 'Breakfast and dinner, without being asked.' }
 ];
 
 /** The Five-minute mini workout, the everyday habits, this week's missions, and the healthy-habits notes. No calories, no weight, nothing about shape. */

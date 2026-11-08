@@ -50,6 +50,19 @@ const shot = (page, name) => page.screenshot({ path: path.join(shotsDir, `${name
   await shot(page, '01_today_fresh');
   expect('theme applied', await page.evaluate(() => document.documentElement.getAttribute('data-theme')), 'pro');
   expect('start needs the questions first', /Answer the questions, then start/.test(await body()), true);
+  // --- The quick check: "not yet" turns into "go do it and come back" ---
+  console.log('Quick check');
+  expect('quick check sits at the top of Today', /Quick check before you start/i.test(await body()), true);
+  const bathroom = page.locator('.item', { hasText: 'gone to the bathroom' });
+  await bathroom.getByRole('button', { name: 'Not yet' }).click();
+  await settle();
+  expect('not yet says go now and come back', /Go now, before you start/.test(await bathroom.innerText()), true);
+  await bathroom.getByRole('button', { name: 'Done, I did it' }).click();
+  await settle();
+  expect('done marks the question', /✓ Have you gone to the bathroom/.test(await page.locator('body').innerText()), true);
+  for (let i = 0; i < 8; i++) { const b = page.locator('[data-tour="quickcheck"] button', { hasText: /^(Yes|No, I am free)$/ }).first(); if (!(await b.count())) break; await b.click(); await page.waitForTimeout(150); }
+  await settle();
+  expect('all yes collapses the card', /Quick check done/.test(await body()), true);
 
   // --- A dance-class day check-in ---
   console.log('Check-in with dance class');
@@ -276,9 +289,9 @@ const shot = (page, name) => page.screenshot({ path: path.join(shotsDir, `${name
   await page.fill('input[placeholder="Search the questions"]', 'backbend');
   expect('FAQ search', /Why are there no bridges, backbends or neck stretches\?/.test(await body()) && (await page.locator('details.faq').count()) === 1, true);
   await page.click('role=button[name="Take the one-minute tour"]');
-  await page.waitForSelector('text=Tour · 1 of 9');
-  for (let i = 0; i < 8; i++) { await page.click('role=button[name="Next ›"]'); await settle(250); }
-  expect('tour reaches the last stop', /Tour · 9 of 9/.test(await body()), true);
+  await page.waitForSelector('text=Tour · 1 of 10');
+  for (let i = 0; i < 9; i++) { await page.click('role=button[name="Next ›"]'); await settle(250); }
+  expect('tour reaches the last stop', /Tour · 10 of 10/.test(await body()), true);
   await shot(page, '09_tour_last');
   await page.click("role=button[name=\"Done, let's go\"]");
   await settle();

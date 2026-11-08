@@ -1,5 +1,14 @@
 # Decisions and lessons
 
+## 2026-11-08, v0.2.0, the quick check (Deren: "she has to literally be reminded all the time to go pee and feed the dogs... ask her if she's used the restroom lately, if she's drank any water, if she's brushed her teeth today, if the dogs need fed... tell her to take a pause and go do those things and come back")
+
+- A card at the very top of Today, above the daily questions: **Quick check before you start.** Each line is a question with **Yes** and **Not yet**. "Not yet" turns the line into "Go now, before you start. The app will be right here when you get back." with a **Done, I did it** button. When every line is a yes, the card collapses to one line ("✓ Quick check done. Bathroom, water, dogs: all good.").
+- Which questions depends on the clock: bathroom and water always; teeth, "have Bear and Teddy had their breakfast", and "dressed and ready for the day" from 5 to 11; "is there something you are supposed to do first (homework, piano practice, a chore)?" from 12 to 20; dogs' dinner 16 to 21; teeth again from 19.
+- A yes lasts the day for teeth, dogs and ready; two hours for the bathroom; ninety minutes for water. Then it asks again. `src/engine/quickcheck.ts`, stored as habit logs with `qc-` keys so they sync and back up like everything else.
+- The parent week shows the dog and teeth answers per day (not the bathroom ones). The "What Dad can see" card says so. "Fed Bear and Teddy" is also one of her everyday habits.
+- Nothing is blocked and nothing is scored: the Start button still works. The card just sits first, and says go.
+- Lesson: a new hook added below an early `return` on the parent page crashed the parent view after a restore (React "fewer hooks than expected") and the error boundary then hid Today too. Hooks go above every return; the acceptance walk caught it.
+
 ## 2026-11-08, v0.1.1, written for a literal reader (Deren, after Vivi's first screen: "Please be abundantly clear for a very literal 9 year old. wtf is 'stage' supposed to mean? Eval EVERYTHING." Then: "I mean she's a literal person. She takes things very literally. And she is nine years old.")
 
 - **Labels say what they are.** The three looks were Playful / Calm / Stage. Now they are "Purple and pink", "Plain and simple", "Dark with gold", each with two color dots and a one-line description. The hero line was still Eli's ("one young athlete"); now "Stretching, strength and balance for a dancer. A little bit every day."

@@ -5,6 +5,7 @@ import { useMode } from '../mode';
 import { CheckInSheet, SportCard, newSportDraft, toLog, type SportDraft, type CheckInDraft } from '../components/CheckInSheet';
 import { Sheet, useToast } from '../components/Sheet';
 import { TourOffer } from '../components/Tour';
+import { QuickCheck } from '../components/QuickCheck';
 import { readinessFor, recordCheckIn, planSession, ensureMessageShown, type TodayContext } from '../../engine/today';
 import { addSportsLog, db, updateSession } from '../../db/db';
 import { pickMessage, daysSinceLastSession, CATEGORY_WORDS } from '../../engine/habits';
@@ -85,6 +86,7 @@ export function TodayPage() {
         </div>
       </div>
       <TourOffer />
+      <QuickCheck />
 
       {/* 1. Check-in */}
       <div className="card" data-tour="checkin">

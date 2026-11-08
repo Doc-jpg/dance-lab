@@ -23,6 +23,7 @@ export function VisibilityCard() {
       <ul className="small step-list">
         <li>Workouts you finished or skipped, and how they felt</li>
         <li>What you did each day (dance, play), your answers to the questions, and your gentle days</li>
+        <li>Your quick-check answers (bathroom, water, teeth, dogs, ready for the day)</li>
         <li>Your progress and badges</li>
         <li>Journal notes, unless you marked them private</li>
         <li>Warnings: something hurt, you felt sick or dizzy, you stopped a workout, a recital day, or a week with no rest day</li>

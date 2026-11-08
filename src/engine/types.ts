@@ -352,7 +352,9 @@ export interface JournalEntry {
   updatedAt: Iso;
 }
 
-export type HabitKey = 'water' | 'meal' | 'fruitveg' | 'sleep' | 'play' | 'foundations';
+export type HabitKey = 'water' | 'meal' | 'fruitveg' | 'sleep' | 'play' | 'dogs' | 'foundations' | QuickCheckKey;
+/** The quick check at the top of Today (added 2026-11-08 at Deren's request: she has to be reminded to go to the bathroom and feed the dogs). */
+export type QuickCheckKey = 'qc-bathroom' | 'qc-drink' | 'qc-teeth-am' | 'qc-teeth-pm' | 'qc-dogs-am' | 'qc-dogs-pm' | 'qc-ready' | 'qc-first';
 
 export interface HabitLog {
   id: string;
